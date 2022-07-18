@@ -28,4 +28,5 @@ type User struct {
 	ID         int32  `json:"id"`
 	FirstName  string `json:"first_name"`
 	SecondName string `json:"second_name"`
+	Bio        string `json:"bio"`
 }

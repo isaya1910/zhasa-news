@@ -1,21 +1,20 @@
 -- Example queries for sqlc
 
-
 SELECT * FROM users
 WHERE id = $1 LIMIT 1;
 
--- name: Listusers :many
+-- name: ListUsers :many
 SELECT * FROM users
 ORDER BY name;
 
--- name: CreateAuthor :one
+-- name: CreateUser :one
 INSERT INTO users (
-  first_name, second_name 
+  id, first_name, second_name, bio 
 ) VALUES (
-  $1, $2
+  $1, $2, $3, $4 
 )
 RETURNING *;
 
--- name: DeleteAuthor :exec
+-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1;

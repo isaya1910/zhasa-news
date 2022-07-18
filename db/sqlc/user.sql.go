@@ -9,44 +9,56 @@ import (
 	"context"
 )
 
-const createAuthor = `-- name: CreateAuthor :one
+const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  first_name, second_name 
+  id, first_name, second_name, bio 
 ) VALUES (
-  $1, $2
+  $1, $2, $3, $4 
 )
-RETURNING id, first_name, second_name
+RETURNING id, first_name, second_name, bio
 `
 
-type CreateAuthorParams struct {
+type CreateUserParams struct {
+	ID         int32  `json:"id"`
 	FirstName  string `json:"first_name"`
 	SecondName string `json:"second_name"`
+	Bio        string `json:"bio"`
 }
 
-func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createAuthor, arg.FirstName, arg.SecondName)
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.ID,
+		arg.FirstName,
+		arg.SecondName,
+		arg.Bio,
+	)
 	var i User
-	err := row.Scan(&i.ID, &i.FirstName, &i.SecondName)
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.SecondName,
+		&i.Bio,
+	)
 	return i, err
 }
 
-const deleteAuthor = `-- name: DeleteAuthor :exec
+const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1
 `
 
-func (q *Queries) DeleteAuthor(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteAuthor, id)
+func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, id)
 	return err
 }
 
-const listusers = `-- name: Listusers :many
-SELECT id, first_name, second_name FROM users
+const listUsers = `-- name: ListUsers :many
+SELECT id, first_name, second_name, bio FROM users
 ORDER BY name
 `
 
-func (q *Queries) Listusers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, listusers)
+func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listUsers)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +66,12 @@ func (q *Queries) Listusers(ctx context.Context) ([]User, error) {
 	var items []User
 	for rows.Next() {
 		var i User
-		if err := rows.Scan(&i.ID, &i.FirstName, &i.SecondName); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.FirstName,
+			&i.SecondName,
+			&i.Bio,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

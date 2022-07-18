@@ -13,7 +13,10 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/zhasa_news?sslmode=disable" -verbose down
 
+migrateforce:
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/zhasa_news?sslmode=disable" force 1 
+
 sqlc:
 	sqlc generate
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc migrateforce

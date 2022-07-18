@@ -1,0 +1,9 @@
+" Press ? for help
+
+.. (up a dir)
+/Users/isaya/zhasa-news/db/sqlc/
+  db.go
+  main_test.go
+  models.go
+  user.sql.go
+  user_test.go
