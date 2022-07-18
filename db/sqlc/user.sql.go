@@ -52,6 +52,25 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 	return err
 }
 
+const getUser = `-- name: GetUser :one
+
+SELECT id, first_name, second_name, bio FROM users
+WHERE id = $1 LIMIT 1
+`
+
+// Example queries for sqlc
+func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.SecondName,
+		&i.Bio,
+	)
+	return i, err
+}
+
 const listUsers = `-- name: ListUsers :many
 SELECT id, first_name, second_name, bio FROM users
 ORDER BY name
