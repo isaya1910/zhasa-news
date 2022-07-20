@@ -25,8 +25,8 @@ type Post struct {
 }
 
 type User struct {
-	ID         int32  `json:"id"`
-	FirstName  string `json:"first_name"`
-	SecondName string `json:"second_name"`
-	Bio        string `json:"bio"`
+	ID        int32  `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Bio       string `json:"bio"`
 }

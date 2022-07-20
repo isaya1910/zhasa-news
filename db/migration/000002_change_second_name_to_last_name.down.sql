@@ -1,0 +1,1 @@
+ALTER TABLE users RENAME column last_name to second_name;

@@ -34,3 +34,11 @@ func RandomName() string {
 func RandomBio() string {
 	return RandomString(32)
 }
+
+func RandomTitle() string {
+	return RandomString(128)
+}
+
+func RandomPostBody() string {
+	return RandomString(256)
+}

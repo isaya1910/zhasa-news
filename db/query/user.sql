@@ -10,7 +10,7 @@ ORDER BY name;
 
 -- name: CreateUser :one
 INSERT INTO users (
-  id, first_name, second_name, bio 
+  id, first_name, last_name, bio
 ) VALUES (
   $1, $2, $3, $4 
 )

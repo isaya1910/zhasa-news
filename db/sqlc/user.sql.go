@@ -11,32 +11,32 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  id, first_name, second_name, bio 
+  id, first_name, last_name, bio
 ) VALUES (
   $1, $2, $3, $4 
 )
-RETURNING id, first_name, second_name, bio
+RETURNING id, first_name, last_name, bio
 `
 
 type CreateUserParams struct {
-	ID         int32  `json:"id"`
-	FirstName  string `json:"first_name"`
-	SecondName string `json:"second_name"`
-	Bio        string `json:"bio"`
+	ID        int32  `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Bio       string `json:"bio"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
 		arg.ID,
 		arg.FirstName,
-		arg.SecondName,
+		arg.LastName,
 		arg.Bio,
 	)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.FirstName,
-		&i.SecondName,
+		&i.LastName,
 		&i.Bio,
 	)
 	return i, err
@@ -54,7 +54,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 
 const getUser = `-- name: GetUser :one
 
-SELECT id, first_name, second_name, bio FROM users
+SELECT id, first_name, last_name, bio FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -65,14 +65,14 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.FirstName,
-		&i.SecondName,
+		&i.LastName,
 		&i.Bio,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, first_name, second_name, bio FROM users
+SELECT id, first_name, last_name, bio FROM users
 ORDER BY name
 `
 
@@ -88,7 +88,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.FirstName,
-			&i.SecondName,
+			&i.LastName,
 			&i.Bio,
 		); err != nil {
 			return nil, err
