@@ -36,3 +36,25 @@ func (store *Store) execTx(ctx context.Context, fn func(queries *Queries) error)
 	}
 	return tx.Commit()
 }
+
+func (store *Store) CreatePostTx(ctx context.Context, postArg CreatePostParams, userArg CreateOrUpdateUserParams) (Post, User, error) {
+	var resultPost Post
+	var resultUser User
+	err := store.execTx(ctx, func(queries *Queries) error {
+		var err error
+		resultUser, err = queries.CreateOrUpdateUser(ctx, userArg)
+		if err != nil {
+			return err
+		}
+		postArg.UserID = resultUser.ID
+		resultPost, err = queries.CreatePost(ctx, postArg)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return resultPost, resultUser, err
+	}
+	return resultPost, resultUser, err
+}

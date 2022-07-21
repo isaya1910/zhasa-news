@@ -24,7 +24,7 @@ func CreatePost(t *testing.T, userId int32) Post {
 }
 
 func TestDeletePost(t *testing.T) {
-	testUser := CreateUser(t)
+	testUser := CreateOrUpdateUser(t)
 	testPost := CreatePost(t, testUser.ID)
 	err := testQueries.DeletePost(context.Background(), testPost.ID)
 	require.NoError(t, err)
@@ -37,7 +37,7 @@ func TestDeletePost(t *testing.T) {
 }
 
 func TestGetPostsAndAuthors(t *testing.T) {
-	testUser := CreateUser(t)
+	testUser := CreateOrUpdateUser(t)
 	testPost := CreatePost(t, testUser.ID)
 
 	postsAndAuthors, err := testQueries.GetPostsAndPostAuthors(context.Background(), GetPostsAndPostAuthorsParams{10, 0})
