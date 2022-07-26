@@ -6,13 +6,14 @@ import (
 )
 
 type Server struct {
-	store  *db.Store
-	router *gin.Engine
+	store      db.Store
+	router     *gin.Engine
+	repository UserRepository
 }
 
 // NewServer creates new http server and setup routing
-func NewServer(store *db.Store) *Server {
-	server := &Server{store: store}
+func NewServer(store db.Store, repository UserRepository) *Server {
+	server := &Server{store: store, repository: repository}
 	router := gin.Default()
 
 	router.POST("/posts", server.createPost)

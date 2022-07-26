@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/gin-gonic/gin"
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
@@ -9,19 +8,18 @@ import (
 )
 
 type createPostRequest struct {
-	Title  string `json:"title" binding:"required"`
-	Body   string `json:"body" binding:"required"`
-	UserID int32  `json:"user_id"`
+	Title string `json:"title" binding:"required"`
+	Body  string `json:"body" binding:"required"`
 }
 
-type createUserJson struct {
+type CreateUserJson struct {
 	FirstName *string `json:"first_name"`
 	LastName  *string `json:"last_name"`
 	Bio       *string `json:"bio"`
 	ID        *int32  `json:"id"`
 }
 
-func (u createUserJson) validateUserJson() error {
+func (u CreateUserJson) validateUserJson() error {
 	if u.FirstName == nil {
 		return errors.New("first_name required")
 	}
@@ -40,21 +38,20 @@ func (u createUserJson) validateUserJson() error {
 func (server *Server) createPost(ctx *gin.Context) {
 	var req *createPostRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("бляяя")))
+		return
+	}
+
+	token := ctx.GetHeader("Authorization")
+
+	user, err := server.repository.GetUser(token)
+
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	userJsonString := ctx.GetHeader("user")
-	var userJson createUserJson
-
-	err := json.Unmarshal([]byte(userJsonString), &userJson)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user not found")))
-		return
-	}
-
-	err = userJson.validateUserJson()
+	err = user.validateUserJson()
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -62,16 +59,15 @@ func (server *Server) createPost(ctx *gin.Context) {
 	}
 
 	argPost := db.CreatePostParams{
-		Title:  req.Title,
-		Body:   req.Body,
-		UserID: req.UserID,
+		Title: req.Title,
+		Body:  req.Body,
 	}
 
 	argUser := db.CreateOrUpdateUserParams{
-		FirstName: *userJson.FirstName,
-		LastName:  *userJson.LastName,
-		Bio:       *userJson.Bio,
-		ID:        *userJson.ID,
+		FirstName: *user.FirstName,
+		LastName:  *user.LastName,
+		Bio:       *user.Bio,
+		ID:        *user.ID,
 	}
 
 	post, _, err := server.store.CreatePostTx(ctx, argPost, argUser)

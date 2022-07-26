@@ -43,14 +43,6 @@ func TestGetPostsAndAuthors(t *testing.T) {
 	postsAndAuthors, err := testQueries.GetPostsAndPostAuthors(context.Background(), GetPostsAndPostAuthorsParams{10, 0})
 	require.NoError(t, err)
 	require.NotEmpty(t, postsAndAuthors)
-	postAndAuthor := postsAndAuthors[0]
-	require.Equal(t, postAndAuthor.PostID, testPost.ID)
-	require.Equal(t, postAndAuthor.UserID, testUser.ID)
-	require.Equal(t, postAndAuthor.Body, testPost.Body)
-
-	require.Equal(t, postAndAuthor.Title, testPost.Title)
-	require.Equal(t, postAndAuthor.CreatedAt, testPost.CreatedAt)
-	require.Equal(t, postAndAuthor.FirstName, testUser.FirstName)
 
 	err = testQueries.DeletePost(context.Background(), testPost.ID)
 	require.NoError(t, err)

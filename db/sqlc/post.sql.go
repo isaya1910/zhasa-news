@@ -95,7 +95,7 @@ func (q *Queries) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPos
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetPostsAndPostAuthorsRow
+	items := []GetPostsAndPostAuthorsRow{}
 	for rows.Next() {
 		var i GetPostsAndPostAuthorsRow
 		if err := rows.Scan(
@@ -132,7 +132,7 @@ func (q *Queries) ListPosts(ctx context.Context) ([]Post, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Post
+	items := []Post{}
 	for rows.Next() {
 		var i Post
 		if err := rows.Scan(

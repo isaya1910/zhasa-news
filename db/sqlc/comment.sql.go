@@ -91,7 +91,7 @@ func (q *Queries) GetCommentsAndAuthorsByPostId(ctx context.Context, postID int3
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetCommentsAndAuthorsByPostIdRow
+	items := []GetCommentsAndAuthorsByPostIdRow{}
 	for rows.Next() {
 		var i GetCommentsAndAuthorsByPostIdRow
 		if err := rows.Scan(

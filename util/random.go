@@ -1,6 +1,7 @@
 package util
 
 import (
+	db "github.com/isaya1910/zhasa-news/db/sqlc"
 	"math/rand"
 	"strings"
 	"time"
@@ -41,4 +42,23 @@ func RandomTitle() string {
 
 func RandomPostBody() string {
 	return RandomString(256)
+}
+
+func CreateRandomUser() db.User {
+	return db.User{
+		FirstName: RandomName(),
+		LastName:  RandomName(),
+		ID:        RandomInt(1, 1000),
+		Bio:       RandomBio(),
+	}
+}
+
+func CreateRandomPost(userId int32) db.Post {
+	return db.Post{
+		Title:     RandomTitle(),
+		Body:      RandomPostBody(),
+		ID:        RandomInt(1, 1000),
+		CreatedAt: time.Now(),
+		UserID:    userId,
+	}
 }

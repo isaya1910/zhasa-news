@@ -6,20 +6,25 @@ import (
 	"fmt"
 )
 
-// Store provides all functions to executed queries transactions
-type Store struct {
+type Store interface {
+	Querier
+	CreatePostTx(ctx context.Context, postArg CreatePostParams, userArg CreateOrUpdateUserParams) (Post, User, error)
+}
+
+// SQLStore SQLSQLStore Store provides all functions to executed queries transactions
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) *SQLStore {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
-func (store *Store) execTx(ctx context.Context, fn func(queries *Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, fn func(queries *Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -37,7 +42,7 @@ func (store *Store) execTx(ctx context.Context, fn func(queries *Queries) error)
 	return tx.Commit()
 }
 
-func (store *Store) CreatePostTx(ctx context.Context, postArg CreatePostParams, userArg CreateOrUpdateUserParams) (Post, User, error) {
+func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParams, userArg CreateOrUpdateUserParams) (Post, User, error) {
 	var resultPost Post
 	var resultUser User
 	err := store.execTx(ctx, func(queries *Queries) error {
