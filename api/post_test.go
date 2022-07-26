@@ -33,7 +33,63 @@ func (UserStubRepository) GetUser(token string) (CreateUserJson, error) {
 	}, nil
 }
 
-func TestPostApi(t *testing.T) {
+func TestDeleteApi(t *testing.T) {
+
+	testCases := []struct {
+		name          string
+		postId        string
+		buildStubs    func(store *mockdb.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:   "Happy path",
+			postId: "3",
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().GetPostById(gomock.Any(), gomock.Any()).Times(1).Return(db.Post{}, nil)
+				store.EXPECT().
+					DeletePost(gomock.Any(), int32(3)).
+					Times(1)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name: "Post id is empty",
+			buildStubs: func(store *mockdb.MockStore) {
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+			postId: "",
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mockdb.NewMockStore(ctrl)
+
+			tc.buildStubs(store)
+
+			server := NewServer(store, UserStubRepository{})
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprint("/posts?postId=", tc.postId)
+
+			request, err := http.NewRequest(http.MethodDelete, url, nil)
+
+			require.NoError(t, err)
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
+func TestPostCreateApi(t *testing.T) {
 
 	testUser := util.CreateRandomUser()
 

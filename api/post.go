@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
 	"net/http"
+	"strconv"
 )
 
 type createPostRequest struct {
@@ -33,6 +34,32 @@ func (u CreateUserJson) validateUserJson() error {
 		return errors.New("bio required")
 	}
 	return nil
+}
+
+func (server *Server) deletePost(ctx *gin.Context) {
+	postIdString := ctx.Query("postId")
+	if len(postIdString) == 0 {
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("postId required")))
+		return
+	}
+	postId, err := strconv.Atoi(postIdString)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	_, err = server.store.GetPostById(ctx, int32(postId))
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("no post found with this id")))
+		return
+	}
+	err = server.store.DeletePost(ctx, int32(postId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, nil)
 }
 
 func (server *Server) createPost(ctx *gin.Context) {
