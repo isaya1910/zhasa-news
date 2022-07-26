@@ -91,7 +91,7 @@ func TestDeleteApi(t *testing.T) {
 
 func TestPostCreateApi(t *testing.T) {
 
-	testUser := util.CreateRandomUser()
+	testUser := CreateRandomUser()
 
 	createPostRequest := db.CreatePostParams{
 		Title: util.RandomTitle(),

@@ -3,11 +3,10 @@ package db
 import (
 	"database/sql"
 	"github.com/isaya1910/zhasa-news/util"
+	_ "github.com/lib/pq"
 	"log"
 	"os"
 	"testing"
-
-	_ "github.com/lib/pq"
 )
 
 var testQueries *Queries
