@@ -19,19 +19,28 @@ func TestGetComments(t *testing.T) {
 
 	testCases := []struct {
 		name          string
-		postId        int32
+		postId        string
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:   "Get not empty comments list",
-			postId: int32(1),
+			postId: "1",
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetCommentsAndAuthorsByPostId(gomock.Any(), int32(1)).Return(
 					commentsAuthorsList, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name:   "Get not found error when post id is empty",
+			postId: "",
+			buildStubs: func(store *mockdb.MockStore) {
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
 			},
 		},
 	}

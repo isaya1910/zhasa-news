@@ -22,6 +22,11 @@ func (server *Server) getCommentsAndAuthorsByPostId(ctx *gin.Context) {
 		return
 	}
 
+	if postId <= 0 {
+		ctx.JSON(http.StatusNotFound, errorResponse(buildArgumentRequiredError("post_dd")))
+		return
+	}
+
 	comments, err := server.store.GetCommentsAndAuthorsByPostId(ctx, int32(postId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
