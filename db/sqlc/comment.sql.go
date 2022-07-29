@@ -67,22 +67,22 @@ func (q *Queries) GetCommentById(ctx context.Context, id int32) (Comment, error)
 }
 
 const getCommentsAndAuthorsByPostId = `-- name: GetCommentsAndAuthorsByPostId :many
-SELECT comments(id) as comment_id, body, user_id, post_id, created_at, first_name, last_name
-FROM comments
-JOIN users
-ON comments.user_id = users.id
-WHERE post_id = $1
+SELECT c.id as comment_id, c.body, c.user_id, c.post_id, c.created_at, u.first_name, u.last_name
+FROM comments c
+JOIN users u
+ON c.user_id = u.id
+WHERE c.post_id = $1
 ORDER BY created_at
 `
 
 type GetCommentsAndAuthorsByPostIdRow struct {
-	CommentID interface{} `json:"comment_id"`
-	Body      string      `json:"body"`
-	UserID    int32       `json:"user_id"`
-	PostID    int32       `json:"post_id"`
-	CreatedAt time.Time   `json:"created_at"`
-	FirstName string      `json:"first_name"`
-	LastName  string      `json:"last_name"`
+	CommentID int32     `json:"comment_id"`
+	Body      string    `json:"body"`
+	UserID    int32     `json:"user_id"`
+	PostID    int32     `json:"post_id"`
+	CreatedAt time.Time `json:"created_at"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
 }
 
 func (q *Queries) GetCommentsAndAuthorsByPostId(ctx context.Context, postID int32) ([]GetCommentsAndAuthorsByPostIdRow, error) {

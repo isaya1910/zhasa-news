@@ -23,7 +23,7 @@ func (server *Server) getCommentsAndAuthorsByPostId(ctx *gin.Context) {
 	}
 
 	if postId <= 0 {
-		ctx.JSON(http.StatusNotFound, errorResponse(buildArgumentRequiredError("post_dd")))
+		ctx.JSON(http.StatusNotFound, errorResponse(buildArgumentRequiredError("post_id")))
 		return
 	}
 

@@ -6,11 +6,11 @@ FROM comments
 WHERE id = $1 LIMIT 1;
 
 -- name: GetCommentsAndAuthorsByPostId :many
-SELECT comments(id) as comment_id, body, user_id, post_id, created_at, first_name, last_name
-FROM comments
-JOIN users
-ON comments.user_id = users.id
-WHERE post_id = $1
+SELECT c.id as comment_id, c.body, c.user_id, c.post_id, c.created_at, u.first_name, u.last_name
+FROM comments c
+JOIN users u
+ON c.user_id = u.id
+WHERE c.post_id = $1
 ORDER BY created_at;
 
 -- name: CreateComment :one
