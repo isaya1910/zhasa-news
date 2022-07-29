@@ -26,7 +26,6 @@ func (UserExternalRepository) GetUser(token string) (userParams CreateUserJson, 
 	request, err := http.NewRequest("GET", config.UserServerAddress+"/account/user/me", nil)
 
 	if err != nil {
-		fmt.Print("бляяя 22 ")
 		return userParams, err
 	}
 

@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/golang/mock/gomock"
 	mockdb "github.com/isaya1910/zhasa-news/db/mock"
@@ -15,39 +14,66 @@ import (
 	"testing"
 )
 
-type UserStubRepository struct{}
-
-func (UserStubRepository) GetUser(token string) (CreateUserJson, error) {
-	if len(token) == 0 {
-		return CreateUserJson{}, errors.New("token is not valid")
-	}
-	firstName := util.RandomName()
-	lastName := util.RandomName()
-	bio := util.RandomBio()
-	id := util.RandomInt(1, 1000)
-	return CreateUserJson{
-		FirstName: &firstName,
-		LastName:  &lastName,
-		Bio:       &bio,
-		ID:        &id,
-	}, nil
-}
-
-func TestDeletePostApi(t *testing.T) {
+func TestGetComments(t *testing.T) {
+	var commentsAuthorsList []db.GetCommentsAndAuthorsByPostIdRow
 
 	testCases := []struct {
 		name          string
-		postId        string
+		postId        int32
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name:   "Happy path",
-			postId: "3",
+			name:   "Get not empty comments list",
+			postId: int32(1),
 			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().GetPostById(gomock.Any(), gomock.Any()).Times(1).Return(db.Post{}, nil)
+				store.EXPECT().GetCommentsAndAuthorsByPostId(gomock.Any(), int32(1)).Return(
+					commentsAuthorsList, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+	}
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mockdb.NewMockStore(ctrl)
+
+			tc.buildStubs(store)
+
+			server := NewServer(store, UserStubRepository{})
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprint("/comments?post_id=", tc.postId)
+
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+
+			require.NoError(t, err)
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
+func TestDeleteCommentApi(t *testing.T) {
+
+	testCases := []struct {
+		name          string
+		commendId     string
+		buildStubs    func(store *mockdb.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:      "Happy path",
+			commendId: "3",
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().GetCommentById(gomock.Any(), gomock.Any()).Times(1).Return(db.Comment{}, nil)
 				store.EXPECT().
-					DeletePost(gomock.Any(), int32(3)).
+					DeleteComment(gomock.Any(), int32(3)).
 					Times(1)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
@@ -55,13 +81,13 @@ func TestDeletePostApi(t *testing.T) {
 			},
 		},
 		{
-			name: "Post id is empty",
+			name: "comment_id is empty",
 			buildStubs: func(store *mockdb.MockStore) {
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				require.Equal(t, http.StatusNotFound, recorder.Code)
 			},
-			postId: "",
+			commendId: "",
 		},
 	}
 
@@ -78,7 +104,7 @@ func TestDeletePostApi(t *testing.T) {
 			server := NewServer(store, UserStubRepository{})
 			recorder := httptest.NewRecorder()
 
-			url := fmt.Sprint("/posts?post_id=", tc.postId)
+			url := fmt.Sprint("/comments?comment_id=", tc.commendId)
 
 			request, err := http.NewRequest(http.MethodDelete, url, nil)
 
@@ -89,38 +115,21 @@ func TestDeletePostApi(t *testing.T) {
 	}
 }
 
-//
-//func TestGetPosts(t *testing.T) {
-//	testCases := []struct{
-//		size int
-//		offset int
-//		buildStubs func(store *mockdb.MockStore)
-//	} {
-//		{
-//			size: ,
-//
-//		},
-//	}
-//}
-
-type TestStruct struct {
-	valueInt    int
-	valueString string
-}
-
-func TestCreatePostApi(t *testing.T) {
+func TestCreateCommentApi(t *testing.T) {
 
 	testUser := CreateRandomUser()
+	testPost := CreateRandomPost(testUser.ID)
 
-	createPostRequest := createPostRequest{
-		Title: util.RandomTitle(),
-		Body:  util.RandomPostBody(),
+	createCommentRequest := CreateCommentRequest{
+		CommentBody: util.RandomPostBody(),
+		PostId:      testPost.ID,
+		UserId:      testUser.ID,
 	}
 
 	testCases := []struct {
 		name             string
 		user             db.User
-		postArgs         db.CreatePostParams
+		commentArgs      db.CreateCommentParams
 		tokenHeader      string
 		buildRequestBody func() ([]byte, error)
 		buildStubs       func(store *mockdb.MockStore)
@@ -131,11 +140,10 @@ func TestCreatePostApi(t *testing.T) {
 			user:        testUser,
 			tokenHeader: "testToken",
 			buildRequestBody: func() ([]byte, error) {
-				return json.Marshal(&createPostRequest)
+				return json.Marshal(&createCommentRequest)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().
-					CreatePostTx(gomock.Any(), gomock.Any(), gomock.Any()).
+				store.EXPECT().CreateCommentTx(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
@@ -147,7 +155,7 @@ func TestCreatePostApi(t *testing.T) {
 			user:        testUser,
 			tokenHeader: "",
 			buildRequestBody: func() ([]byte, error) {
-				return json.Marshal(&createPostRequest)
+				return json.Marshal(&createCommentRequest)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -155,7 +163,7 @@ func TestCreatePostApi(t *testing.T) {
 					Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
 			},
 		},
 	}
@@ -177,7 +185,7 @@ func TestCreatePostApi(t *testing.T) {
 
 			require.NoError(t, err)
 
-			url := fmt.Sprintf("/posts")
+			url := fmt.Sprintf("/comments")
 
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(requestBody))
 			request.Header.Set("Authorization", tc.tokenHeader)

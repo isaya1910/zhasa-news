@@ -37,14 +37,9 @@ func (u CreateUserJson) validateUserJson() error {
 }
 
 func (server *Server) deletePost(ctx *gin.Context) {
-	postIdString := ctx.Query("postId")
-	if len(postIdString) == 0 {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("postId required")))
-		return
-	}
-	postId, err := strconv.Atoi(postIdString)
+	postId, err := strconv.Atoi(ctx.Query("post_id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("post_id required")))
 		return
 	}
 
@@ -59,13 +54,13 @@ func (server *Server) deletePost(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, nil)
+	ctx.Status(http.StatusOK)
 }
 
 func (server *Server) createPost(ctx *gin.Context) {
 	var req *createPostRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("бляяя")))
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 

@@ -9,6 +9,7 @@ import (
 type Store interface {
 	Querier
 	CreatePostTx(ctx context.Context, postArg CreatePostParams, userArg CreateOrUpdateUserParams) (Post, User, error)
+	CreateCommentTx(ctx context.Context, commentArg CreateCommentParams, userArg CreateOrUpdateUserParams) (Comment, User, error)
 }
 
 // SQLStore SQLSQLStore Store provides all functions to executed queries transactions
@@ -62,4 +63,26 @@ func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParam
 		return resultPost, resultUser, err
 	}
 	return resultPost, resultUser, err
+}
+
+func (store *SQLStore) CreateCommentTx(ctx context.Context, commentArg CreateCommentParams, userArg CreateOrUpdateUserParams) (Comment, User, error) {
+	var resultComment Comment
+	var resultUser User
+	err := store.execTx(ctx, func(queries *Queries) error {
+		var err error
+		resultUser, err = queries.CreateOrUpdateUser(ctx, userArg)
+		if err != nil {
+			return err
+		}
+		commentArg.UserID = resultUser.ID
+		resultComment, err = queries.CreateComment(ctx, commentArg)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return resultComment, resultUser, err
+	}
+	return resultComment, resultUser, err
 }
