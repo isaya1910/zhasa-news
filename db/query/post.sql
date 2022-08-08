@@ -1,5 +1,3 @@
--- Example queries for sqlc
-
 -- name: GetPostById :one
 SELECT *
 FROM posts

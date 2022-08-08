@@ -46,13 +46,11 @@ func (q *Queries) DeletePost(ctx context.Context, id int32) error {
 }
 
 const getPostById = `-- name: GetPostById :one
-
 SELECT id, title, body, user_id, created_at
 FROM posts
 WHERE id = $1 LIMIT 1
 `
 
-// Example queries for sqlc
 func (q *Queries) GetPostById(ctx context.Context, id int32) (Post, error) {
 	row := q.db.QueryRowContext(ctx, getPostById, id)
 	var i Post

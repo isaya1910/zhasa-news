@@ -10,6 +10,8 @@ type Store interface {
 	Querier
 	CreatePostTx(ctx context.Context, postArg CreatePostParams, userArg CreateOrUpdateUserParams) (Post, User, error)
 	CreateCommentTx(ctx context.Context, commentArg CreateCommentParams, userArg CreateOrUpdateUserParams) (Comment, User, error)
+	AddLikeTx(ctx context.Context, postId int32, userArg CreateOrUpdateUserParams) (Like, error)
+	DeleteLikeTx(ctx context.Context, postId int32, userArg CreateOrUpdateUserParams) error
 }
 
 // SQLStore SQLSQLStore Store provides all functions to executed queries transactions
@@ -85,4 +87,49 @@ func (store *SQLStore) CreateCommentTx(ctx context.Context, commentArg CreateCom
 		return resultComment, resultUser, err
 	}
 	return resultComment, resultUser, err
+}
+
+func (store *SQLStore) AddLikeTx(ctx context.Context, postId int32, userArg CreateOrUpdateUserParams) (Like, error) {
+	var resultLike Like
+	err := store.execTx(ctx, func(queries *Queries) error {
+		var err error
+		var resultUser User
+		resultUser, err = queries.CreateOrUpdateUser(ctx, userArg)
+		if err != nil {
+			return err
+		}
+		var addLikeParams AddLikeParams
+		addLikeParams = AddLikeParams{
+			UserID: resultUser.ID,
+			PostID: postId,
+		}
+		resultLike, err = store.AddLike(ctx, addLikeParams)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return resultLike, err
+}
+
+func (store *SQLStore) DeleteLikeTx(ctx context.Context, postId int32, userArg CreateOrUpdateUserParams) error {
+	err := store.execTx(ctx, func(queries *Queries) error {
+		var err error
+		var resultUser User
+		resultUser, err = queries.CreateOrUpdateUser(ctx, userArg)
+		if err != nil {
+			return err
+		}
+		var addLikeParams DeleteLikeParams
+		addLikeParams = DeleteLikeParams{
+			UserID: resultUser.ID,
+			PostID: postId,
+		}
+		err = store.DeleteLike(ctx, addLikeParams)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
 }

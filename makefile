@@ -14,7 +14,7 @@ migratedown:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/zhasa_news?sslmode=disable" -verbose down
 
 migrateforce:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/zhasa_news?sslmode=disable" force 1 
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/zhasa_news?sslmode=disable" force 3
 
 sqlc:
 	sqlc generate

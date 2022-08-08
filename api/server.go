@@ -18,10 +18,14 @@ func NewServer(store db.Store, repository UserRepository) *Server {
 
 	router.POST("/posts", server.createPost)
 	router.DELETE("/posts", server.deletePost)
+	router.GET("/posts", server.getPosts)
 
 	router.POST("/comments", server.createComment)
 	router.DELETE("/comments", server.deleteComment)
 	router.GET("/comments", server.getCommentsAndAuthorsByPostId)
+
+	router.POST("/posts/likes", server.toggleLike)
+
 	server.router = router
 	return server
 }

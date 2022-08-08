@@ -1,0 +1,5 @@
+CREATE TABLE LIKES(
+    user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    post_id INT REFERENCES posts(id) ON DELETE CASCADE NOT NULL,
+    PRIMARY KEY(user_id, post_id)
+);

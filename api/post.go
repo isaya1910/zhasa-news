@@ -36,6 +36,38 @@ func (u CreateUserJson) validateUserJson() error {
 	return nil
 }
 
+const (
+	defaultSize   = 20
+	defaultOffset = 0
+)
+
+func (server *Server) getPosts(ctx *gin.Context) {
+	size, err := strconv.Atoi(ctx.Query("size"))
+	if err != nil {
+		size = defaultSize
+	}
+
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil {
+		page = defaultOffset
+	}
+
+	var posts []db.GetPostsAndPostAuthorsRow
+
+	arg := db.GetPostsAndPostAuthorsParams{
+		Limit:  int32(size),
+		Offset: int32(page),
+	}
+	posts, err = server.store.GetPostsAndPostAuthors(ctx, arg)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, posts)
+}
+
 func (server *Server) deletePost(ctx *gin.Context) {
 	postId, err := strconv.Atoi(ctx.Query("post_id"))
 	if err != nil {
