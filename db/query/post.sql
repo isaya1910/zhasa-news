@@ -18,8 +18,13 @@ FROM posts
 WHERE id = $1;
 
 -- name: GetPostsAndPostAuthors :many
-SELECT p.id AS post_id, p.title, p.body, p.created_at, u.id AS user_id, u.first_name, u.last_name
+SELECT p.*,
+       EXISTS(SELECT * FROM likes l WHERE l.post_id = p.id AND l.user_id = $1) AS is_liked,
+       (SELECT COUNT(*) AS likes_count FROM likes l WHERE l.post_id = p.id),
+       u.first_name,
+       u.last_name
 FROM posts p
+         LEFT JOIN likes l ON l.post_id = p.id
          JOIN users u ON p.user_id = u.id
-ORDER BY created_at LIMIT $1
-OFFSET $2;
+ORDER BY created_at LIMIT $2
+OFFSET $3;

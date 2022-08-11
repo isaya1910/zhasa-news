@@ -65,30 +65,38 @@ func (q *Queries) GetPostById(ctx context.Context, id int32) (Post, error) {
 }
 
 const getPostsAndPostAuthors = `-- name: GetPostsAndPostAuthors :many
-SELECT p.id AS post_id, p.title, p.body, p.created_at, u.id AS user_id, u.first_name, u.last_name
+SELECT p.id, p.title, p.body, p.user_id, p.created_at,
+       EXISTS(SELECT user_id, post_id FROM likes l WHERE l.post_id = p.id AND l.user_id = $1) AS is_liked,
+       (SELECT COUNT(*) AS likes_count FROM likes l WHERE l.post_id = p.id),
+       u.first_name,
+       u.last_name
 FROM posts p
+         LEFT JOIN likes l ON l.post_id = p.id
          JOIN users u ON p.user_id = u.id
-ORDER BY created_at LIMIT $1
-OFFSET $2
+ORDER BY created_at LIMIT $2
+OFFSET $3
 `
 
 type GetPostsAndPostAuthorsParams struct {
+	UserID int32 `json:"user_id"`
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
 type GetPostsAndPostAuthorsRow struct {
-	PostID    int32     `json:"post_id"`
-	Title     string    `json:"title"`
-	Body      string    `json:"body"`
-	CreatedAt time.Time `json:"created_at"`
-	UserID    int32     `json:"user_id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
+	ID         int32     `json:"id"`
+	Title      string    `json:"title"`
+	Body       string    `json:"body"`
+	UserID     int32     `json:"user_id"`
+	CreatedAt  time.Time `json:"created_at"`
+	IsLiked    bool      `json:"is_liked"`
+	LikesCount int64     `json:"likes_count"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
 }
 
 func (q *Queries) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPostsAndPostAuthors, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getPostsAndPostAuthors, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -97,11 +105,13 @@ func (q *Queries) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPos
 	for rows.Next() {
 		var i GetPostsAndPostAuthorsRow
 		if err := rows.Scan(
-			&i.PostID,
+			&i.ID,
 			&i.Title,
 			&i.Body,
-			&i.CreatedAt,
 			&i.UserID,
+			&i.CreatedAt,
+			&i.IsLiked,
+			&i.LikesCount,
 			&i.FirstName,
 			&i.LastName,
 		); err != nil {

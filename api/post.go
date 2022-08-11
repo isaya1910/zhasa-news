@@ -43,6 +43,21 @@ const (
 
 func (server *Server) getPosts(ctx *gin.Context) {
 	size, err := strconv.Atoi(ctx.Query("size"))
+	token := ctx.GetHeader("Authorization")
+
+	user, err := server.repository.GetUser(token)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	userId := *user.ID
+
+	if userId <= 0 {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("user not found")))
+		return
+	}
+
 	if err != nil {
 		size = defaultSize
 	}
@@ -57,6 +72,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 	arg := db.GetPostsAndPostAuthorsParams{
 		Limit:  int32(size),
 		Offset: int32(page),
+		UserID: userId,
 	}
 	posts, err = server.store.GetPostsAndPostAuthors(ctx, arg)
 
