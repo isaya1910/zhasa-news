@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:12
+    environment:
+      - POSTGRES_USER=zhassapp
+      - POSTGRES_PASSWORD=zhassapp
+      - POSTGRES_DB=zhassapp
+    ports:
+      - "15432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  zhasa-news:
+    image: zhasa-news
+    restart: unless-stopped
+    build: ./
+    ports:
+      - 8080
+    environment:
+      - DATABASE_URL=psql://zhassapp:zhassapp@postgres:5432/zhassapp
+networks:
+  default:
+    external:
+      name: zhassapp_default
+
+volumes:
+  pgdata:
+  dmedia:
+  dstatic:
