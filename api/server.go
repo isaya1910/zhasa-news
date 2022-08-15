@@ -16,15 +16,15 @@ func NewServer(store db.Store, repository UserRepository) *Server {
 	server := &Server{store: store, repository: repository}
 	router := gin.Default()
 
-	router.POST("/posts", server.createPost)
-	router.DELETE("/posts", server.deletePost)
-	router.GET("/posts", server.getPosts)
+	router.POST("/news/posts", server.createPost)
+	router.DELETE("/news/posts", server.deletePost)
+	router.GET("/news/posts", server.getPosts)
 
-	router.POST("/comments", server.createComment)
-	router.DELETE("/comments", server.deleteComment)
-	router.GET("/comments", server.getCommentsAndAuthorsByPostId)
+	router.POST("/news/comments", server.createComment)
+	router.DELETE("/news/comments", server.deleteComment)
+	router.GET("/news/comments", server.getCommentsAndAuthorsByPostId)
 
-	router.POST("/posts/likes", server.toggleLike)
+	router.POST("/news/posts/likes", server.toggleLike)
 
 	server.router = router
 	return server
