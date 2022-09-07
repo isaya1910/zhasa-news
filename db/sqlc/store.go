@@ -8,7 +8,7 @@ import (
 
 type Store interface {
 	Querier
-	CreatePostTx(ctx context.Context, postArg CreatePostParams, userArg CreateOrUpdateUserParams) (Post, User, error)
+	CreatePostTx(ctx context.Context, postArg CreatePostParams, imageUrl string, userArg CreateOrUpdateUserParams) (Post, User, error)
 	CreateCommentTx(ctx context.Context, commentArg CreateCommentParams, userArg CreateOrUpdateUserParams) (Comment, User, error)
 	AddLikeTx(ctx context.Context, postId int32, userArg CreateOrUpdateUserParams) (Like, error)
 	DeleteLikeTx(ctx context.Context, postId int32, userArg CreateOrUpdateUserParams) error
@@ -45,7 +45,7 @@ func (store *SQLStore) execTx(ctx context.Context, fn func(queries *Queries) err
 	return tx.Commit()
 }
 
-func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParams, userArg CreateOrUpdateUserParams) (Post, User, error) {
+func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParams, imageUrl string, userArg CreateOrUpdateUserParams) (Post, User, error) {
 	var resultPost Post
 	var resultUser User
 	err := store.execTx(ctx, func(queries *Queries) error {
@@ -56,6 +56,11 @@ func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParam
 		}
 		postArg.UserID = resultUser.ID
 		resultPost, err = queries.CreatePost(ctx, postArg)
+		if len(imageUrl) == 0 {
+			return nil
+		}
+		createImageParams := CreatePostImageParams{PostID: resultPost.ID, ImageUrl: imageUrl}
+		_, err = queries.CreatePostImage(ctx, createImageParams)
 		if err != nil {
 			return err
 		}

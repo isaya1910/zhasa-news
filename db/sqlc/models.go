@@ -29,6 +29,12 @@ type Post struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type PostImage struct {
+	ID       int32  `json:"id"`
+	ImageUrl string `json:"image_url"`
+	PostID   int32  `json:"post_id"`
+}
+
 type User struct {
 	ID        int32  `json:"id"`
 	FirstName string `json:"first_name"`

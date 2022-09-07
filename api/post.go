@@ -9,8 +9,9 @@ import (
 )
 
 type createPostRequest struct {
-	Title string `json:"title" binding:"required"`
-	Body  string `json:"body" binding:"required"`
+	Title    string `json:"title" binding:"required"`
+	Body     string `json:"body" binding:"required"`
+	ImageUrl string `json:"image_url"`
 }
 
 type CreateUserJson struct {
@@ -140,7 +141,7 @@ func (server *Server) createPost(ctx *gin.Context) {
 		ID:        *user.ID,
 	}
 
-	post, _, err := server.store.CreatePostTx(ctx, argPost, argUser)
+	post, _, err := server.store.CreatePostTx(ctx, argPost, req.ImageUrl, argUser)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

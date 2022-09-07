@@ -57,7 +57,7 @@ func TestGetComments(t *testing.T) {
 			server := NewServer(store, UserStubRepository{})
 			recorder := httptest.NewRecorder()
 
-			url := fmt.Sprint("/comments?post_id=", tc.postId)
+			url := fmt.Sprint("/news/comments?post_id=", tc.postId)
 
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 
@@ -113,7 +113,7 @@ func TestDeleteCommentApi(t *testing.T) {
 			server := NewServer(store, UserStubRepository{})
 			recorder := httptest.NewRecorder()
 
-			url := fmt.Sprint("/comments?comment_id=", tc.commendId)
+			url := fmt.Sprint("/news/comments?comment_id=", tc.commendId)
 
 			request, err := http.NewRequest(http.MethodDelete, url, nil)
 
@@ -168,7 +168,7 @@ func TestCreateCommentApi(t *testing.T) {
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					CreatePostTx(gomock.Any(), gomock.Any(), gomock.Any()).
+					CreatePostTx(gomock.Any(), gomock.Any(), "", gomock.Any()).
 					Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
@@ -194,7 +194,7 @@ func TestCreateCommentApi(t *testing.T) {
 
 			require.NoError(t, err)
 
-			url := fmt.Sprintf("/comments")
+			url := fmt.Sprintf("/news/comments")
 
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(requestBody))
 			request.Header.Set("Authorization", tc.tokenHeader)

@@ -67,7 +67,7 @@ func TestAddLike(t *testing.T) {
 			server := NewServer(store, UserStubRepository{})
 			recorder := httptest.NewRecorder()
 
-			url := fmt.Sprint("/posts/likes?post_id=", tc.postId)
+			url := fmt.Sprint("/news/posts/likes?post_id=", tc.postId)
 
 			request, err := http.NewRequest(http.MethodPost, url, nil)
 			request.Header.Set("Authorization", "testToken")

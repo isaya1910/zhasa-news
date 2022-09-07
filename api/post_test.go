@@ -78,7 +78,7 @@ func TestDeletePostApi(t *testing.T) {
 			server := NewServer(store, UserStubRepository{})
 			recorder := httptest.NewRecorder()
 
-			url := fmt.Sprint("/posts?post_id=", tc.postId)
+			url := fmt.Sprint("/news/posts?post_id=", tc.postId)
 
 			request, err := http.NewRequest(http.MethodDelete, url, nil)
 
@@ -87,25 +87,6 @@ func TestDeletePostApi(t *testing.T) {
 			tc.checkResponse(t, recorder)
 		})
 	}
-}
-
-//
-//func TestGetPosts(t *testing.T) {
-//	testCases := []struct{
-//		size int
-//		offset int
-//		buildStubs func(store *mockdb.MockStore)
-//	} {
-//		{
-//			size: ,
-//
-//		},
-//	}
-//}
-
-type TestStruct struct {
-	valueInt    int
-	valueString string
 }
 
 func TestCreatePostApi(t *testing.T) {
@@ -135,7 +116,7 @@ func TestCreatePostApi(t *testing.T) {
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					CreatePostTx(gomock.Any(), gomock.Any(), gomock.Any()).
+					CreatePostTx(gomock.Any(), gomock.Any(), "", gomock.Any()).
 					Times(1)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
@@ -151,7 +132,7 @@ func TestCreatePostApi(t *testing.T) {
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					CreatePostTx(gomock.Any(), gomock.Any(), gomock.Any()).
+					CreatePostTx(gomock.Any(), gomock.Any(), "", gomock.Any()).
 					Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
@@ -177,7 +158,7 @@ func TestCreatePostApi(t *testing.T) {
 
 			require.NoError(t, err)
 
-			url := fmt.Sprintf("/posts")
+			url := fmt.Sprintf("/news/posts")
 
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(requestBody))
 			request.Header.Set("Authorization", tc.tokenHeader)

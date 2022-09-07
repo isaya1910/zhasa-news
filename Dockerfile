@@ -4,12 +4,10 @@ WORKDIR /app
 
 COPY go.mod ./
 COPY go.sum ./
+RUN go mod init zhasa-news
 RUN go mod download
 
-# Copy source code
-COPY . /app
-
-RUN go build -o /zhasa-news
+COPY *.go ./
 
 EXPOSE 8080
 

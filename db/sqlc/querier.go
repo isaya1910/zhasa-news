@@ -13,7 +13,9 @@ type Querier interface {
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
 	CreateOrUpdateUser(ctx context.Context, arg CreateOrUpdateUserParams) (User, error)
 	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)
+	CreatePostImage(ctx context.Context, arg CreatePostImageParams) (PostImage, error)
 	DeleteComment(ctx context.Context, id int32) error
+	DeleteImage(ctx context.Context, postID int32) error
 	DeleteLike(ctx context.Context, arg DeleteLikeParams) error
 	DeletePost(ctx context.Context, id int32) error
 	DeleteUser(ctx context.Context, id int32) error
@@ -21,6 +23,7 @@ type Querier interface {
 	GetCommentById(ctx context.Context, id int32) (Comment, error)
 	GetCommentsAndAuthorsByPostId(ctx context.Context, postID int32) ([]GetCommentsAndAuthorsByPostIdRow, error)
 	GetPostById(ctx context.Context, id int32) (Post, error)
+	GetPostImages(ctx context.Context, postID int32) ([]PostImage, error)
 	GetPostLikedUsers(ctx context.Context, arg GetPostLikedUsersParams) ([]GetPostLikedUsersRow, error)
 	GetPostLikesCount(ctx context.Context, postID int32) (int64, error)
 	GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error)

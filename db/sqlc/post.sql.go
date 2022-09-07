@@ -8,6 +8,8 @@ package db
 import (
 	"context"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 const createPost = `-- name: CreatePost :one
@@ -65,13 +67,17 @@ func (q *Queries) GetPostById(ctx context.Context, id int32) (Post, error) {
 }
 
 const getPostsAndPostAuthors = `-- name: GetPostsAndPostAuthors :many
-SELECT p.id, p.title, p.body, p.user_id, p.created_at,
+SELECT DISTINCT p.id, p.title, p.body, p.user_id, p.created_at,
        EXISTS(SELECT user_id, post_id FROM likes l WHERE l.post_id = p.id AND l.user_id = $1) AS is_liked,
        (SELECT COUNT(*) AS likes_count FROM likes l WHERE l.post_id = p.id),
+       (SELECT COUNT(*) AS comments_count FROM comments cm WHERE cm.post_id = p.id),
+       ARRAY(select p_i.image_url from post_images p_i WHERE p_i.post_id = p.id)::text[] as image_urls,
        u.first_name,
        u.last_name
 FROM posts p
          LEFT JOIN likes l ON l.post_id = p.id
+         LEFT JOIN comments cm ON cm.post_id = p.id
+         LEFT JOIN post_images p_i ON p_i.post_id = p.id
          JOIN users u ON p.user_id = u.id
 ORDER BY created_at LIMIT $2
 OFFSET $3
@@ -84,15 +90,17 @@ type GetPostsAndPostAuthorsParams struct {
 }
 
 type GetPostsAndPostAuthorsRow struct {
-	ID         int32     `json:"id"`
-	Title      string    `json:"title"`
-	Body       string    `json:"body"`
-	UserID     int32     `json:"user_id"`
-	CreatedAt  time.Time `json:"created_at"`
-	IsLiked    bool      `json:"is_liked"`
-	LikesCount int64     `json:"likes_count"`
-	FirstName  string    `json:"first_name"`
-	LastName   string    `json:"last_name"`
+	ID            int32     `json:"id"`
+	Title         string    `json:"title"`
+	Body          string    `json:"body"`
+	UserID        int32     `json:"user_id"`
+	CreatedAt     time.Time `json:"created_at"`
+	IsLiked       bool      `json:"is_liked"`
+	LikesCount    int64     `json:"likes_count"`
+	CommentsCount int64     `json:"comments_count"`
+	ImageUrls     []string  `json:"image_urls"`
+	FirstName     string    `json:"first_name"`
+	LastName      string    `json:"last_name"`
 }
 
 func (q *Queries) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error) {
@@ -112,6 +120,8 @@ func (q *Queries) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPos
 			&i.CreatedAt,
 			&i.IsLiked,
 			&i.LikesCount,
+			&i.CommentsCount,
+			pq.Array(&i.ImageUrls),
 			&i.FirstName,
 			&i.LastName,
 		); err != nil {

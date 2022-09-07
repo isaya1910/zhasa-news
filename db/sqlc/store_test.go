@@ -22,7 +22,7 @@ func TestCreatePostTx(t *testing.T) {
 		Body:  util.RandomPostBody(),
 	}
 
-	post, user, err := store.CreatePostTx(context.Background(), createPostArg, createUserArg)
+	post, user, err := store.CreatePostTx(context.Background(), createPostArg, "", createUserArg)
 
 	require.NoError(t, err)
 	require.NotEmpty(t, post)

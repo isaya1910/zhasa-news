@@ -126,10 +126,25 @@ func (mr *MockStoreMockRecorder) CreatePost(arg0, arg1 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePost", reflect.TypeOf((*MockStore)(nil).CreatePost), arg0, arg1)
 }
 
-// CreatePostTx mocks base method.
-func (m *MockStore) CreatePostTx(arg0 context.Context, arg1 db.CreatePostParams, arg2 db.CreateOrUpdateUserParams) (db.Post, db.User, error) {
+// CreatePostImage mocks base method.
+func (m *MockStore) CreatePostImage(arg0 context.Context, arg1 db.CreatePostImageParams) (db.PostImage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreatePostTx", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "CreatePostImage", arg0, arg1)
+	ret0, _ := ret[0].(db.PostImage)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreatePostImage indicates an expected call of CreatePostImage.
+func (mr *MockStoreMockRecorder) CreatePostImage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePostImage", reflect.TypeOf((*MockStore)(nil).CreatePostImage), arg0, arg1)
+}
+
+// CreatePostTx mocks base method.
+func (m *MockStore) CreatePostTx(arg0 context.Context, arg1 db.CreatePostParams, arg2 string, arg3 db.CreateOrUpdateUserParams) (db.Post, db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreatePostTx", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(db.Post)
 	ret1, _ := ret[1].(db.User)
 	ret2, _ := ret[2].(error)
@@ -137,9 +152,9 @@ func (m *MockStore) CreatePostTx(arg0 context.Context, arg1 db.CreatePostParams,
 }
 
 // CreatePostTx indicates an expected call of CreatePostTx.
-func (mr *MockStoreMockRecorder) CreatePostTx(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) CreatePostTx(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePostTx", reflect.TypeOf((*MockStore)(nil).CreatePostTx), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePostTx", reflect.TypeOf((*MockStore)(nil).CreatePostTx), arg0, arg1, arg2, arg3)
 }
 
 // DeleteComment mocks base method.
@@ -154,6 +169,20 @@ func (m *MockStore) DeleteComment(arg0 context.Context, arg1 int32) error {
 func (mr *MockStoreMockRecorder) DeleteComment(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteComment", reflect.TypeOf((*MockStore)(nil).DeleteComment), arg0, arg1)
+}
+
+// DeleteImage mocks base method.
+func (m *MockStore) DeleteImage(arg0 context.Context, arg1 int32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteImage", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteImage indicates an expected call of DeleteImage.
+func (mr *MockStoreMockRecorder) DeleteImage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteImage", reflect.TypeOf((*MockStore)(nil).DeleteImage), arg0, arg1)
 }
 
 // DeleteLike mocks base method.
@@ -255,6 +284,21 @@ func (m *MockStore) GetPostById(arg0 context.Context, arg1 int32) (db.Post, erro
 func (mr *MockStoreMockRecorder) GetPostById(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostById", reflect.TypeOf((*MockStore)(nil).GetPostById), arg0, arg1)
+}
+
+// GetPostImages mocks base method.
+func (m *MockStore) GetPostImages(arg0 context.Context, arg1 int32) ([]db.PostImage, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPostImages", arg0, arg1)
+	ret0, _ := ret[0].([]db.PostImage)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPostImages indicates an expected call of GetPostImages.
+func (mr *MockStoreMockRecorder) GetPostImages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostImages", reflect.TypeOf((*MockStore)(nil).GetPostImages), arg0, arg1)
 }
 
 // GetPostLikedUsers mocks base method.

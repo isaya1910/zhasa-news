@@ -40,7 +40,7 @@ func TestGetPostsAndAuthors(t *testing.T) {
 	testUser := CreateOrUpdateUser(t)
 	testPost := CreatePost(t, testUser.ID)
 
-	postsAndAuthors, err := testQueries.GetPostsAndPostAuthors(context.Background(), GetPostsAndPostAuthorsParams{10, 0})
+	postsAndAuthors, err := testQueries.GetPostsAndPostAuthors(context.Background(), GetPostsAndPostAuthorsParams{testUser.ID, 10, 0})
 	require.NoError(t, err)
 	require.NotEmpty(t, postsAndAuthors)
 
