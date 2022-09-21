@@ -4,10 +4,9 @@ WORKDIR /app
 
 COPY go.mod ./
 COPY go.sum ./
-RUN go mod init zhasa-news
-RUN go mod tidy
-RUN go mod download
 
+RUN go mod download
+RUN go build -o /docker-gs-ping
 COPY *.go ./
 
 EXPOSE 8080
