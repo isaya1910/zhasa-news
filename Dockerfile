@@ -1,13 +1,13 @@
-FROM golang:1.16-alpine
+FROM golang:1.16-alpine AS builder
 
 WORKDIR /app
+COPY . .
+RUN go build -o main main.go
 
-COPY go.mod ./
-COPY go.sum ./
-RUN go mod download
-
-COPY *.go ./
+FROM alpine:3.16
+WORKDIR /app
+COPY --from=builder /app/main .
 
 EXPOSE 8080
 
-CMD [ "/zhasa-news" ]
+CMD [ "/app/main" ]
