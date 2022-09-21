@@ -10,5 +10,3 @@ RUN go mod download
 COPY *.go ./
 
 EXPOSE 8080
-
-CMD [ "/zhasa-news" ]
