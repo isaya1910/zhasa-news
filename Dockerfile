@@ -5,8 +5,9 @@ COPY . .
 
 RUN go build -o main main.go
 
-COPY *.go ./
-
+# run
+WORKDI /app
+COPY --from=builder /app/main .
 EXPOSE 8080
 
-CMD [ "/zhasa-news" ]
+CMD [ "/app/main" ]
