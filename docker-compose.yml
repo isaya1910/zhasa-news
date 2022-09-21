@@ -1,16 +1,6 @@
 version: '3.7'
 
 services:
-  postgres:
-    image: postgres:12
-    environment:
-      - POSTGRES_USER=zhassapp
-      - POSTGRES_PASSWORD=zhassapp
-      - POSTGRES_DB=zhassapp
-    ports:
-      - "15432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
   zhasa-news:
     restart: unless-stopped
     build:
