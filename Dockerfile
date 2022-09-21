@@ -6,7 +6,7 @@ COPY . .
 RUN go build -o main main.go
 
 # run
-WORKDI /app
+WORKDIR /app
 COPY --from=builder /app/main .
 EXPOSE 8080
 
