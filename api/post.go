@@ -19,6 +19,15 @@ type CreateUserJson struct {
 	LastName  *string `json:"last_name"`
 	Bio       *string `json:"bio"`
 	ID        *int32  `json:"id"`
+	AvatarUrl *string `json:"avatar_url"`
+}
+
+type PostResponse struct {
+	Id        int32        `json:"id"`
+	Title     string       `json:"title"`
+	Body      string       `json:"body"`
+	ImageUrls []string     `json:"image_urls"`
+	User      UserResponse `json:"user"`
 }
 
 func (u CreateUserJson) validateUserJson() error {
@@ -44,15 +53,8 @@ const (
 
 func (server *Server) getPosts(ctx *gin.Context) {
 	size, err := strconv.Atoi(ctx.Query("size"))
-	token := ctx.GetHeader("Authorization")
 
-	user, err := server.repository.GetUser(token)
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-		return
-	}
-
-	userId := *user.ID
+	userId := ctx.GetInt("user_id")
 
 	if userId <= 0 {
 		ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("user not found")))
@@ -73,7 +75,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 	arg := db.GetPostsAndPostAuthorsParams{
 		Limit:  int32(size),
 		Offset: int32(page),
-		UserID: userId,
+		UserID: int32(userId),
 	}
 	posts, err = server.store.GetPostsAndPostAuthors(ctx, arg)
 
@@ -81,8 +83,26 @@ func (server *Server) getPosts(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+	var postsResponse []PostResponse
 
-	ctx.JSON(http.StatusOK, posts)
+	for _, value := range posts {
+		postResponse := PostResponse{
+			Id:        value.ID,
+			Title:     value.Title,
+			Body:      value.Body,
+			ImageUrls: value.ImageUrls,
+			User: UserResponse{
+				FirstName: value.FirstName,
+				LastName:  value.LastName,
+				Role:      value.Bio,
+				ID:        value.ID,
+				AvatarUrl: value.AvatarUrl,
+			},
+		}
+		postsResponse = append(postsResponse, postResponse)
+	}
+
+	ctx.JSON(http.StatusOK, postsResponse)
 }
 
 func (server *Server) deletePost(ctx *gin.Context) {
@@ -113,35 +133,21 @@ func (server *Server) createPost(ctx *gin.Context) {
 		return
 	}
 
-	token := ctx.GetHeader("Authorization")
-
-	user, err := server.repository.GetUser(token)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	err = user.validateUserJson()
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+	userId := ctx.GetInt("user_id")
 
 	argPost := db.CreatePostParams{
-		Title: req.Title,
-		Body:  req.Body,
+		Title:    req.Title,
+		Body:     req.Body,
+		UserID:   int32(userId),
+		ImageUrl: req.ImageUrl,
 	}
 
-	argUser := db.CreateOrUpdateUserParams{
-		FirstName: *user.FirstName,
-		LastName:  *user.LastName,
-		Bio:       *user.Bio,
-		ID:        *user.ID,
+	if userId <= 0 {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(buildArgumentRequiredError("Authorization required")))
+		return
 	}
 
-	post, _, err := server.store.CreatePostTx(ctx, argPost, req.ImageUrl, argUser)
+	post, err := server.store.CreatePostTx(ctx, argPost)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

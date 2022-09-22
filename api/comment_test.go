@@ -20,13 +20,18 @@ func TestGetComments(t *testing.T) {
 	testCases := []struct {
 		name          string
 		postId        string
+		token         string
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:   "Get not empty comments list",
 			postId: "1",
+			token:  "testToken",
 			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().CreateUserTx(gomock.Any(), gomock.Any()).Times(1).Return(db.User{
+					ID: 1,
+				}, nil)
 				store.EXPECT().GetCommentsAndAuthorsByPostId(gomock.Any(), int32(1)).Return(
 					commentsAuthorsList, nil)
 			},
@@ -37,7 +42,11 @@ func TestGetComments(t *testing.T) {
 		{
 			name:   "Get not found error when post id is empty",
 			postId: "",
+			token:  "testToken",
 			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().CreateUserTx(gomock.Any(), gomock.Any()).Times(1).Return(db.User{
+					ID: 1,
+				}, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
@@ -60,7 +69,7 @@ func TestGetComments(t *testing.T) {
 			url := fmt.Sprint("/news/comments?post_id=", tc.postId)
 
 			request, err := http.NewRequest(http.MethodGet, url, nil)
-
+			request.Header.Set("Authorization", tc.token)
 			require.NoError(t, err)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
@@ -132,7 +141,6 @@ func TestCreateCommentApi(t *testing.T) {
 	createCommentRequest := CreateCommentRequest{
 		CommentBody: util.RandomPostBody(),
 		PostId:      testPost.ID,
-		UserId:      testUser.ID,
 	}
 
 	testCases := []struct {
@@ -152,7 +160,7 @@ func TestCreateCommentApi(t *testing.T) {
 				return json.Marshal(&createCommentRequest)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().CreateCommentTx(gomock.Any(), gomock.Any(), gomock.Any()).
+				store.EXPECT().CreateCommentTx(gomock.Any(), gomock.Any()).
 					Times(1)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
@@ -168,7 +176,7 @@ func TestCreateCommentApi(t *testing.T) {
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					CreatePostTx(gomock.Any(), gomock.Any(), "", gomock.Any()).
+					CreatePostTx(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {

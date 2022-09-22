@@ -18,9 +18,10 @@ VALUES ($1, $2, $3) RETURNING id, title, body, user_id, created_at
 `
 
 type CreatePostParams struct {
-	Title  string `json:"title"`
-	Body   string `json:"body"`
-	UserID int32  `json:"user_id"`
+	Title    string `json:"title"`
+	Body     string `json:"body"`
+	UserID   int32  `json:"user_id"`
+	ImageUrl string `json:"image_url"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
@@ -73,7 +74,9 @@ SELECT DISTINCT p.id, p.title, p.body, p.user_id, p.created_at,
        (SELECT COUNT(*) AS comments_count FROM comments cm WHERE cm.post_id = p.id),
        ARRAY(select p_i.image_url from post_images p_i WHERE p_i.post_id = p.id)::text[] as image_urls,
        u.first_name,
-       u.last_name
+       u.last_name,
+       u.avatar_url,
+       u.bio
 FROM posts p
          LEFT JOIN likes l ON l.post_id = p.id
          LEFT JOIN comments cm ON cm.post_id = p.id
@@ -101,6 +104,8 @@ type GetPostsAndPostAuthorsRow struct {
 	ImageUrls     []string  `json:"image_urls"`
 	FirstName     string    `json:"first_name"`
 	LastName      string    `json:"last_name"`
+	AvatarUrl     string    `json:"avatar_url"`
+	Bio           string    `json:"bio"`
 }
 
 func (q *Queries) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error) {
@@ -124,6 +129,8 @@ func (q *Queries) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPos
 			pq.Array(&i.ImageUrls),
 			&i.FirstName,
 			&i.LastName,
+			&i.AvatarUrl,
+			&i.Bio,
 		); err != nil {
 			return nil, err
 		}

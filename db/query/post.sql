@@ -24,7 +24,9 @@ SELECT DISTINCT p.*,
        (SELECT COUNT(*) AS comments_count FROM comments cm WHERE cm.post_id = p.id),
        ARRAY(select p_i.image_url from post_images p_i WHERE p_i.post_id = p.id)::text[] as image_urls,
        u.first_name,
-       u.last_name
+       u.last_name,
+       u.avatar_url,
+       u.bio
 FROM posts p
          LEFT JOIN likes l ON l.post_id = p.id
          LEFT JOIN comments cm ON cm.post_id = p.id

@@ -1,0 +1,1 @@
+ALTER TABLE post_images DROP CONSTRAINT post_images_pkey;

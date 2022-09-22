@@ -51,18 +51,18 @@ func (mr *MockStoreMockRecorder) AddLike(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // AddLikeTx mocks base method.
-func (m *MockStore) AddLikeTx(arg0 context.Context, arg1 int32, arg2 db.CreateOrUpdateUserParams) (db.Like, error) {
+func (m *MockStore) AddLikeTx(arg0 context.Context, arg1 db.AddLikeParams) (db.Like, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddLikeTx", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "AddLikeTx", arg0, arg1)
 	ret0, _ := ret[0].(db.Like)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AddLikeTx indicates an expected call of AddLikeTx.
-func (mr *MockStoreMockRecorder) AddLikeTx(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) AddLikeTx(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddLikeTx", reflect.TypeOf((*MockStore)(nil).AddLikeTx), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddLikeTx", reflect.TypeOf((*MockStore)(nil).AddLikeTx), arg0, arg1)
 }
 
 // CreateComment mocks base method.
@@ -81,19 +81,18 @@ func (mr *MockStoreMockRecorder) CreateComment(arg0, arg1 interface{}) *gomock.C
 }
 
 // CreateCommentTx mocks base method.
-func (m *MockStore) CreateCommentTx(arg0 context.Context, arg1 db.CreateCommentParams, arg2 db.CreateOrUpdateUserParams) (db.Comment, db.User, error) {
+func (m *MockStore) CreateCommentTx(arg0 context.Context, arg1 db.CreateCommentParams) (db.Comment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateCommentTx", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "CreateCommentTx", arg0, arg1)
 	ret0, _ := ret[0].(db.Comment)
-	ret1, _ := ret[1].(db.User)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateCommentTx indicates an expected call of CreateCommentTx.
-func (mr *MockStoreMockRecorder) CreateCommentTx(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) CreateCommentTx(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCommentTx", reflect.TypeOf((*MockStore)(nil).CreateCommentTx), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCommentTx", reflect.TypeOf((*MockStore)(nil).CreateCommentTx), arg0, arg1)
 }
 
 // CreateOrUpdateUser mocks base method.
@@ -142,19 +141,33 @@ func (mr *MockStoreMockRecorder) CreatePostImage(arg0, arg1 interface{}) *gomock
 }
 
 // CreatePostTx mocks base method.
-func (m *MockStore) CreatePostTx(arg0 context.Context, arg1 db.CreatePostParams, arg2 string, arg3 db.CreateOrUpdateUserParams) (db.Post, db.User, error) {
+func (m *MockStore) CreatePostTx(arg0 context.Context, arg1 db.CreatePostParams) (db.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreatePostTx", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "CreatePostTx", arg0, arg1)
 	ret0, _ := ret[0].(db.Post)
-	ret1, _ := ret[1].(db.User)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreatePostTx indicates an expected call of CreatePostTx.
-func (mr *MockStoreMockRecorder) CreatePostTx(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) CreatePostTx(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePostTx", reflect.TypeOf((*MockStore)(nil).CreatePostTx), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePostTx", reflect.TypeOf((*MockStore)(nil).CreatePostTx), arg0, arg1)
+}
+
+// CreateUserTx mocks base method.
+func (m *MockStore) CreateUserTx(arg0 context.Context, arg1 db.CreateOrUpdateUserParams) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUserTx", arg0, arg1)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUserTx indicates an expected call of CreateUserTx.
+func (mr *MockStoreMockRecorder) CreateUserTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserTx", reflect.TypeOf((*MockStore)(nil).CreateUserTx), arg0, arg1)
 }
 
 // DeleteComment mocks base method.
@@ -200,17 +213,17 @@ func (mr *MockStoreMockRecorder) DeleteLike(arg0, arg1 interface{}) *gomock.Call
 }
 
 // DeleteLikeTx mocks base method.
-func (m *MockStore) DeleteLikeTx(arg0 context.Context, arg1 int32, arg2 db.CreateOrUpdateUserParams) error {
+func (m *MockStore) DeleteLikeTx(arg0 context.Context, arg1 db.DeleteLikeParams) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteLikeTx", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "DeleteLikeTx", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteLikeTx indicates an expected call of DeleteLikeTx.
-func (mr *MockStoreMockRecorder) DeleteLikeTx(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) DeleteLikeTx(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLikeTx", reflect.TypeOf((*MockStore)(nil).DeleteLikeTx), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLikeTx", reflect.TypeOf((*MockStore)(nil).DeleteLikeTx), arg0, arg1)
 }
 
 // DeletePost mocks base method.

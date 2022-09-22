@@ -8,10 +8,11 @@ import (
 
 type Store interface {
 	Querier
-	CreatePostTx(ctx context.Context, postArg CreatePostParams, imageUrl string, userArg CreateOrUpdateUserParams) (Post, User, error)
-	CreateCommentTx(ctx context.Context, commentArg CreateCommentParams, userArg CreateOrUpdateUserParams) (Comment, User, error)
-	AddLikeTx(ctx context.Context, postId int32, userArg CreateOrUpdateUserParams) (Like, error)
-	DeleteLikeTx(ctx context.Context, postId int32, userArg CreateOrUpdateUserParams) error
+	CreateUserTx(ctx context.Context, userArg CreateOrUpdateUserParams) (User, error)
+	CreatePostTx(ctx context.Context, postArg CreatePostParams) (Post, error)
+	CreateCommentTx(ctx context.Context, commentArg CreateCommentParams) (Comment, error)
+	AddLikeTx(ctx context.Context, params AddLikeParams) (Like, error)
+	DeleteLikeTx(ctx context.Context, params DeleteLikeParams) error
 }
 
 // SQLStore SQLSQLStore Store provides all functions to executed queries transactions
@@ -45,70 +46,45 @@ func (store *SQLStore) execTx(ctx context.Context, fn func(queries *Queries) err
 	return tx.Commit()
 }
 
-func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParams, imageUrl string, userArg CreateOrUpdateUserParams) (Post, User, error) {
+func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParams) (Post, error) {
 	var resultPost Post
-	var resultUser User
 	err := store.execTx(ctx, func(queries *Queries) error {
 		var err error
-		resultUser, err = queries.CreateOrUpdateUser(ctx, userArg)
+		resultPost, err = queries.CreatePost(ctx, postArg)
 		if err != nil {
 			return err
 		}
-		postArg.UserID = resultUser.ID
-		resultPost, err = queries.CreatePost(ctx, postArg)
-		if len(imageUrl) == 0 {
-			return nil
-		}
-		createImageParams := CreatePostImageParams{PostID: resultPost.ID, ImageUrl: imageUrl}
+		createImageParams := CreatePostImageParams{PostID: resultPost.ID, ImageUrl: postArg.ImageUrl}
 		_, err = queries.CreatePostImage(ctx, createImageParams)
 		if err != nil {
 			return err
 		}
 		return nil
 	})
-	if err != nil {
-		return resultPost, resultUser, err
-	}
-	return resultPost, resultUser, err
+	return resultPost, err
 }
 
-func (store *SQLStore) CreateCommentTx(ctx context.Context, commentArg CreateCommentParams, userArg CreateOrUpdateUserParams) (Comment, User, error) {
+func (store *SQLStore) CreateCommentTx(ctx context.Context, commentArg CreateCommentParams) (Comment, error) {
 	var resultComment Comment
-	var resultUser User
 	err := store.execTx(ctx, func(queries *Queries) error {
 		var err error
-		resultUser, err = queries.CreateOrUpdateUser(ctx, userArg)
 		if err != nil {
 			return err
 		}
-		commentArg.UserID = resultUser.ID
 		resultComment, err = queries.CreateComment(ctx, commentArg)
 		if err != nil {
 			return err
 		}
 		return nil
 	})
-	if err != nil {
-		return resultComment, resultUser, err
-	}
-	return resultComment, resultUser, err
+	return resultComment, err
 }
 
-func (store *SQLStore) AddLikeTx(ctx context.Context, postId int32, userArg CreateOrUpdateUserParams) (Like, error) {
+func (store *SQLStore) AddLikeTx(ctx context.Context, params AddLikeParams) (Like, error) {
 	var resultLike Like
 	err := store.execTx(ctx, func(queries *Queries) error {
 		var err error
-		var resultUser User
-		resultUser, err = queries.CreateOrUpdateUser(ctx, userArg)
-		if err != nil {
-			return err
-		}
-		var addLikeParams AddLikeParams
-		addLikeParams = AddLikeParams{
-			UserID: resultUser.ID,
-			PostID: postId,
-		}
-		resultLike, err = store.AddLike(ctx, addLikeParams)
+		resultLike, err = store.AddLike(ctx, params)
 		if err != nil {
 			return err
 		}
@@ -117,24 +93,27 @@ func (store *SQLStore) AddLikeTx(ctx context.Context, postId int32, userArg Crea
 	return resultLike, err
 }
 
-func (store *SQLStore) DeleteLikeTx(ctx context.Context, postId int32, userArg CreateOrUpdateUserParams) error {
+func (store *SQLStore) DeleteLikeTx(ctx context.Context, params DeleteLikeParams) error {
 	err := store.execTx(ctx, func(queries *Queries) error {
 		var err error
-		var resultUser User
-		resultUser, err = queries.CreateOrUpdateUser(ctx, userArg)
-		if err != nil {
-			return err
-		}
-		var addLikeParams DeleteLikeParams
-		addLikeParams = DeleteLikeParams{
-			UserID: resultUser.ID,
-			PostID: postId,
-		}
-		err = store.DeleteLike(ctx, addLikeParams)
+		err = store.DeleteLike(ctx, params)
 		if err != nil {
 			return err
 		}
 		return nil
 	})
 	return err
+}
+
+func (store *SQLStore) CreateUserTx(ctx context.Context, userArg CreateOrUpdateUserParams) (User, error) {
+	var resultUser User
+	err := store.execTx(ctx, func(queries *Queries) error {
+		var err error
+		resultUser, err = queries.CreateOrUpdateUser(ctx, userArg)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return resultUser, err
 }

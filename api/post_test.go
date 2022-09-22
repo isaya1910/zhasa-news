@@ -25,11 +25,13 @@ func (UserStubRepository) GetUser(token string) (CreateUserJson, error) {
 	lastName := util.RandomName()
 	bio := util.RandomBio()
 	id := util.RandomInt(1, 1000)
+	avatarUrl := ""
 	return CreateUserJson{
 		FirstName: &firstName,
 		LastName:  &lastName,
 		Bio:       &bio,
 		ID:        &id,
+		AvatarUrl: &avatarUrl,
 	}, nil
 }
 
@@ -115,8 +117,11 @@ func TestCreatePostApi(t *testing.T) {
 				return json.Marshal(&createPostRequest)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().CreateUserTx(gomock.Any(), gomock.Any()).Times(1).Return(db.User{
+					ID: 1,
+				}, nil)
 				store.EXPECT().
-					CreatePostTx(gomock.Any(), gomock.Any(), "", gomock.Any()).
+					CreatePostTx(gomock.Any(), gomock.Any()).
 					Times(1)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
@@ -132,11 +137,11 @@ func TestCreatePostApi(t *testing.T) {
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					CreatePostTx(gomock.Any(), gomock.Any(), "", gomock.Any()).
+					CreatePostTx(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
 			},
 		},
 	}

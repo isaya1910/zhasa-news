@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/isaya1910/zhasa-news/util"
 	"io/ioutil"
@@ -13,6 +14,7 @@ type UserResponse struct {
 	LastName  string `json:"last_name"`
 	Role      string `json:"role"`
 	ID        int32  `json:"id"`
+	AvatarUrl string `json:"thumbnail_url"`
 }
 
 type UserRepository interface {
@@ -48,5 +50,10 @@ func (UserExternalRepository) GetUser(token string) (userParams CreateUserJson, 
 	userParams.FirstName = &userResponse.FirstName
 	userParams.LastName = &userResponse.LastName
 	userParams.Bio = &userResponse.Role
+	userParams.AvatarUrl = &userResponse.AvatarUrl
+
+	if *userParams.ID == 0 {
+		return userParams, errors.New("user not found")
+	}
 	return userParams, nil
 }

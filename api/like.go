@@ -9,7 +9,6 @@ import (
 )
 
 func (server *Server) toggleLike(ctx *gin.Context) {
-	token := ctx.GetHeader("Authorization")
 	post, err := strconv.Atoi(ctx.Query("post_id"))
 	postId := int32(post)
 	if err != nil {
@@ -21,25 +20,19 @@ func (server *Server) toggleLike(ctx *gin.Context) {
 		return
 	}
 
-	user, err := server.repository.GetUser(token)
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-		return
-	}
-
-	userId := *user.ID
+	userId := ctx.GetInt("user_id")
 	params := db.GetUserPostLikeParams{
-		UserID: userId,
+		UserID: int32(userId),
 		PostID: postId,
 	}
 	like, err := server.store.GetUserPostLike(ctx, params)
 
 	if err != nil {
 		addLikeParams := db.AddLikeParams{
-			UserID: userId,
+			UserID: int32(userId),
 			PostID: postId,
 		}
-		_, err = server.store.AddLike(ctx, addLikeParams)
+		_, err = server.store.AddLikeTx(ctx, addLikeParams)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
@@ -47,11 +40,13 @@ func (server *Server) toggleLike(ctx *gin.Context) {
 		ctx.Status(http.StatusOK)
 		return
 	}
+
 	deleteLikeParams := db.DeleteLikeParams{
-		UserID: userId,
+		UserID: int32(userId),
 		PostID: postId,
 	}
-	err = server.store.DeleteLike(ctx, deleteLikeParams)
+
+	err = server.store.DeleteLikeTx(ctx, deleteLikeParams)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

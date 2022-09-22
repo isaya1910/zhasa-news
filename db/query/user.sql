@@ -11,13 +11,14 @@ FROM users
 ORDER BY name;
 
 -- name: CreateOrUpdateUser :one
-INSERT INTO users (id, first_name, last_name, bio)
-VALUES ($1, $2, $3, $4) ON CONFLICT (id)
+INSERT INTO users (id, first_name, last_name, bio, avatar_url)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id)
 DO
 UPDATE
     SET first_name = excluded.first_name,
     last_name = excluded.last_name,
-    bio = excluded.bio
+    bio = excluded.bio,
+    avatar_url = excluded.avatar_url
     RETURNING *;
 
 -- name: DeleteUser :exec

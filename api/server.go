@@ -3,6 +3,8 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
+	"log"
+	"net/http"
 )
 
 type Server struct {
@@ -15,6 +17,7 @@ type Server struct {
 func NewServer(store db.Store, repository UserRepository) *Server {
 	server := &Server{store: store, repository: repository}
 	router := gin.Default()
+	router.Use(getAndSetUser(repository, store))
 
 	router.POST("/news/posts", server.createPost)
 	router.DELETE("/news/posts", server.deletePost)
@@ -30,7 +33,36 @@ func NewServer(store db.Store, repository UserRepository) *Server {
 	return server
 }
 
-// Start runs the HTTP serveron a specific address
+func getAndSetUser(repository UserRepository, store db.Store) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("Authorization")
+		userJson, err := repository.GetUser(token)
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusUnauthorized, err)
+			return
+		}
+
+		argUser := db.CreateOrUpdateUserParams{
+			FirstName: *userJson.FirstName,
+			LastName:  *userJson.LastName,
+			Bio:       *userJson.Bio,
+			ID:        *userJson.ID,
+			AvatarUrl: *userJson.AvatarUrl,
+		}
+
+		user, err := store.CreateUserTx(ctx, argUser)
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusUnauthorized, err)
+			return
+		}
+
+		log.Print(user.ID)
+		ctx.Set("user_id", int(user.ID))
+		ctx.Next()
+	}
+}
+
+// Start runs the HTTP server a specific address
 func (server *Server) Start(address string) error {
 	return server.router.Run(address)
 }

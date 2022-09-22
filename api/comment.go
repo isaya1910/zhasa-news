@@ -7,12 +7,20 @@ import (
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type CreateCommentRequest struct {
 	CommentBody string `json:"comment_body" binding:"required"`
 	PostId      int32  `json:"post_id" binding:"required"`
-	UserId      int32  `json:"user_id" binding:"required"`
+}
+
+type CommentResponse struct {
+	Id          int32        `json:"id"`
+	CommentBody string       `json:"comment_body"`
+	PostId      int32        `json:"post_id"`
+	CreatedAt   time.Time    `json:"created_at"`
+	User        UserResponse `json:"user"`
 }
 
 func (server *Server) getCommentsAndAuthorsByPostId(ctx *gin.Context) {
@@ -32,7 +40,27 @@ func (server *Server) getCommentsAndAuthorsByPostId(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, comments)
+
+	var commentsResponse []CommentResponse
+
+	for _, value := range comments {
+		comment := CommentResponse{
+			Id:          value.CommentID,
+			CommentBody: value.Body,
+			PostId:      value.PostID,
+			CreatedAt:   value.CreatedAt,
+			User: UserResponse{
+				FirstName: value.FirstName,
+				LastName:  value.LastName,
+				Role:      value.Bio,
+				ID:        value.UserID,
+				AvatarUrl: value.AvatarUrl,
+			},
+		}
+		commentsResponse = append(commentsResponse, comment)
+	}
+
+	ctx.JSON(http.StatusOK, commentsResponse)
 }
 
 func (server *Server) deleteComment(ctx *gin.Context) {
@@ -64,28 +92,15 @@ func (server *Server) createComment(ctx *gin.Context) {
 		return
 	}
 
-	token := ctx.GetHeader("Authorization")
-
-	user, err := server.repository.GetUser(token)
-
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("authorization required")))
-		return
-	}
+	userId := ctx.GetInt("user_id")
 
 	createCommentParams := db.CreateCommentParams{
 		Body:   createCommentRequest.CommentBody,
-		UserID: createCommentRequest.UserId,
+		UserID: int32(userId),
 		PostID: createCommentRequest.PostId,
 	}
 
-	argUser := db.CreateOrUpdateUserParams{
-		FirstName: *user.FirstName,
-		LastName:  *user.LastName,
-		Bio:       *user.Bio,
-		ID:        *user.ID,
-	}
-	comment, _, err := server.store.CreateCommentTx(ctx, createCommentParams, argUser)
+	comment, err := server.store.CreateCommentTx(ctx, createCommentParams)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

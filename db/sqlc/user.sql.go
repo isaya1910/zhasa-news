@@ -10,14 +10,15 @@ import (
 )
 
 const createOrUpdateUser = `-- name: CreateOrUpdateUser :one
-INSERT INTO users (id, first_name, last_name, bio)
-VALUES ($1, $2, $3, $4) ON CONFLICT (id)
+INSERT INTO users (id, first_name, last_name, bio, avatar_url)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id)
 DO
 UPDATE
     SET first_name = excluded.first_name,
     last_name = excluded.last_name,
-    bio = excluded.bio
-    RETURNING id, first_name, last_name, bio
+    bio = excluded.bio,
+    avatar_url = excluded.avatar_url
+    RETURNING id, first_name, last_name, bio, avatar_url
 `
 
 type CreateOrUpdateUserParams struct {
@@ -25,6 +26,7 @@ type CreateOrUpdateUserParams struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Bio       string `json:"bio"`
+	AvatarUrl string `json:"avatar_url"`
 }
 
 func (q *Queries) CreateOrUpdateUser(ctx context.Context, arg CreateOrUpdateUserParams) (User, error) {
@@ -33,6 +35,7 @@ func (q *Queries) CreateOrUpdateUser(ctx context.Context, arg CreateOrUpdateUser
 		arg.FirstName,
 		arg.LastName,
 		arg.Bio,
+		arg.AvatarUrl,
 	)
 	var i User
 	err := row.Scan(
@@ -40,6 +43,7 @@ func (q *Queries) CreateOrUpdateUser(ctx context.Context, arg CreateOrUpdateUser
 		&i.FirstName,
 		&i.LastName,
 		&i.Bio,
+		&i.AvatarUrl,
 	)
 	return i, err
 }
@@ -57,7 +61,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 
 const getUser = `-- name: GetUser :one
 
-SELECT id, first_name, last_name, bio
+SELECT id, first_name, last_name, bio, avatar_url
 FROM users
 WHERE id = $1 LIMIT 1
 `
@@ -71,12 +75,13 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 		&i.FirstName,
 		&i.LastName,
 		&i.Bio,
+		&i.AvatarUrl,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, first_name, last_name, bio
+SELECT id, first_name, last_name, bio, avatar_url
 FROM users
 ORDER BY name
 `
@@ -95,6 +100,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.FirstName,
 			&i.LastName,
 			&i.Bio,
+			&i.AvatarUrl,
 		); err != nil {
 			return nil, err
 		}
