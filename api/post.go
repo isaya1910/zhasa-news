@@ -23,11 +23,14 @@ type CreateUserJson struct {
 }
 
 type PostResponse struct {
-	Id        int32        `json:"id"`
-	Title     string       `json:"title"`
-	Body      string       `json:"body"`
-	ImageUrls []string     `json:"image_urls"`
-	User      UserResponse `json:"user"`
+	Id            int32        `json:"id"`
+	Title         string       `json:"title"`
+	Body          string       `json:"body"`
+	LikesCount    int64        `json:"likes_count"`
+	CommentsCount int64        `json:"comments_count"`
+	IsLiked       bool         `json:"is_liked"`
+	ImageUrls     []string     `json:"image_urls"`
+	User          UserResponse `json:"user"`
 }
 
 func (u CreateUserJson) validateUserJson() error {
@@ -87,10 +90,13 @@ func (server *Server) getPosts(ctx *gin.Context) {
 
 	for _, value := range posts {
 		postResponse := PostResponse{
-			Id:        value.ID,
-			Title:     value.Title,
-			Body:      value.Body,
-			ImageUrls: value.ImageUrls,
+			Id:            value.ID,
+			Title:         value.Title,
+			Body:          value.Body,
+			ImageUrls:     value.ImageUrls,
+			LikesCount:    value.LikesCount,
+			CommentsCount: value.CommentsCount,
+			IsLiked:       value.IsLiked,
 			User: UserResponse{
 				FirstName: value.FirstName,
 				LastName:  value.LastName,

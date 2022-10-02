@@ -41,7 +41,7 @@ func (server *Server) getCommentsAndAuthorsByPostId(ctx *gin.Context) {
 		return
 	}
 
-	var commentsResponse []CommentResponse
+	commentsResponse := make([]CommentResponse, 0)
 
 	for _, value := range comments {
 		comment := CommentResponse{
