@@ -87,7 +87,6 @@ func (server *Server) getPosts(ctx *gin.Context) {
 		return
 	}
 	var postsResponse []PostResponse
-
 	for _, value := range posts {
 		postResponse := PostResponse{
 			Id:            value.ID,
