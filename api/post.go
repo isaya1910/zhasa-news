@@ -141,10 +141,9 @@ func (server *Server) createPost(ctx *gin.Context) {
 	userId := ctx.GetInt("user_id")
 
 	argPost := db.CreatePostParams{
-		Title:    req.Title,
-		Body:     req.Body,
-		UserID:   int32(userId),
-		ImageUrl: req.ImageUrl,
+		Title:  req.Title,
+		Body:   req.Body,
+		UserID: int32(userId),
 	}
 
 	if userId <= 0 {
@@ -152,7 +151,7 @@ func (server *Server) createPost(ctx *gin.Context) {
 		return
 	}
 
-	post, err := server.store.CreatePostTx(ctx, argPost)
+	post, err := server.store.CreatePostTx(ctx, argPost, req.ImageUrl)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

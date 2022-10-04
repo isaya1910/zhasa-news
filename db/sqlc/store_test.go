@@ -18,19 +18,17 @@ func TestCreatePostTx(t *testing.T) {
 	}
 
 	createPostArg := CreatePostParams{
-		Title: util.RandomTitle(),
-		Body:  util.RandomPostBody(),
+		Title:  util.RandomTitle(),
+		Body:   util.RandomPostBody(),
+		UserID: createUserArg.ID,
 	}
 
-	post, user, err := store.CreatePostTx(context.Background(), createPostArg, "", createUserArg)
+	post, err := store.CreatePostTx(context.Background(), createPostArg, "")
 
 	require.NoError(t, err)
 	require.NotEmpty(t, post)
-	require.NotEmpty(t, user)
-	require.Equal(t, post.UserID, user.ID)
 
 	err = store.DeletePost(context.Background(), post.ID)
 	require.NoError(t, err)
-	err = store.DeleteUser(context.Background(), user.ID)
 	require.NoError(t, err)
 }

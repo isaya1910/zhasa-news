@@ -121,7 +121,7 @@ func TestCreatePostApi(t *testing.T) {
 					ID: 1,
 				}, nil)
 				store.EXPECT().
-					CreatePostTx(gomock.Any(), gomock.Any()).
+					CreatePostTx(gomock.Any(), gomock.Any(), "").
 					Times(1)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
@@ -137,7 +137,7 @@ func TestCreatePostApi(t *testing.T) {
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					CreatePostTx(gomock.Any(), gomock.Any()).
+					CreatePostTx(gomock.Any(), gomock.Any(), "").
 					Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {

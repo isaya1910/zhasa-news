@@ -9,7 +9,7 @@ import (
 type Store interface {
 	Querier
 	CreateUserTx(ctx context.Context, userArg CreateOrUpdateUserParams) (User, error)
-	CreatePostTx(ctx context.Context, postArg CreatePostParams) (Post, error)
+	CreatePostTx(ctx context.Context, postArg CreatePostParams, postImage string) (Post, error)
 	CreateCommentTx(ctx context.Context, commentArg CreateCommentParams) (Comment, error)
 	AddLikeTx(ctx context.Context, params AddLikeParams) (Like, error)
 	DeleteLikeTx(ctx context.Context, params DeleteLikeParams) error
@@ -46,7 +46,7 @@ func (store *SQLStore) execTx(ctx context.Context, fn func(queries *Queries) err
 	return tx.Commit()
 }
 
-func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParams) (Post, error) {
+func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParams, postImage string) (Post, error) {
 	var resultPost Post
 	err := store.execTx(ctx, func(queries *Queries) error {
 		var err error
@@ -54,7 +54,7 @@ func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParam
 		if err != nil {
 			return err
 		}
-		createImageParams := CreatePostImageParams{PostID: resultPost.ID, ImageUrl: postArg.ImageUrl}
+		createImageParams := CreatePostImageParams{PostID: resultPost.ID, ImageUrl: postImage}
 		if len(createImageParams.ImageUrl) == 0 {
 			return nil
 		}

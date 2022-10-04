@@ -18,10 +18,9 @@ VALUES ($1, $2, $3) RETURNING id, title, body, user_id, created_at
 `
 
 type CreatePostParams struct {
-	Title    string `json:"title"`
-	Body     string `json:"body"`
-	UserID   int32  `json:"user_id"`
-	ImageUrl string `json:"image_url"`
+	Title  string `json:"title"`
+	Body   string `json:"body"`
+	UserID int32  `json:"user_id"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
@@ -82,7 +81,7 @@ FROM posts p
          LEFT JOIN comments cm ON cm.post_id = p.id
          LEFT JOIN post_images p_i ON p_i.post_id = p.id
          JOIN users u ON p.user_id = u.id
-ORDER BY created_at LIMIT $2
+ORDER BY created_at DESC LIMIT $2
 OFFSET $3
 `
 
