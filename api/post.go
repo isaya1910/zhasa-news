@@ -100,7 +100,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 				FirstName: value.FirstName,
 				LastName:  value.LastName,
 				Role:      value.Bio,
-				ID:        value.ID,
+				ID:        value.UserID,
 				AvatarUrl: value.AvatarUrl,
 			},
 		}

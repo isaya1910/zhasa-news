@@ -6,7 +6,7 @@ FROM comments
 WHERE id = $1 LIMIT 1;
 
 -- name: GetCommentsAndAuthorsByPostId :many
-SELECT c.id as comment_id, c.body, c.user_id, c.post_id, c.created_at, u.first_name, u.last_name, u.avatar_url, u.bio
+SELECT c.id as comment_id, c.body, c.user_id, c.post_id, c.created_at, u.id AS user_id, u.first_name, u.last_name, u.avatar_url, u.bio
 FROM comments c
 JOIN users u
 ON c.user_id = u.id

@@ -67,7 +67,7 @@ func (q *Queries) GetCommentById(ctx context.Context, id int32) (Comment, error)
 }
 
 const getCommentsAndAuthorsByPostId = `-- name: GetCommentsAndAuthorsByPostId :many
-SELECT c.id as comment_id, c.body, c.user_id, c.post_id, c.created_at, u.first_name, u.last_name, u.avatar_url, u.bio
+SELECT c.id as comment_id, c.body, c.user_id, c.post_id, c.created_at, u.id AS user_id, u.first_name, u.last_name, u.avatar_url, u.bio
 FROM comments c
 JOIN users u
 ON c.user_id = u.id
@@ -81,6 +81,7 @@ type GetCommentsAndAuthorsByPostIdRow struct {
 	UserID    int32     `json:"user_id"`
 	PostID    int32     `json:"post_id"`
 	CreatedAt time.Time `json:"created_at"`
+	UserID_2  int32     `json:"user_id_2"`
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
 	AvatarUrl string    `json:"avatar_url"`
@@ -102,6 +103,7 @@ func (q *Queries) GetCommentsAndAuthorsByPostId(ctx context.Context, postID int3
 			&i.UserID,
 			&i.PostID,
 			&i.CreatedAt,
+			&i.UserID_2,
 			&i.FirstName,
 			&i.LastName,
 			&i.AvatarUrl,

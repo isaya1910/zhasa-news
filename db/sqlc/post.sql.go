@@ -72,6 +72,7 @@ SELECT DISTINCT p.id, p.title, p.body, p.user_id, p.created_at,
        (SELECT COUNT(*) AS likes_count FROM likes l WHERE l.post_id = p.id),
        (SELECT COUNT(*) AS comments_count FROM comments cm WHERE cm.post_id = p.id),
        ARRAY(select p_i.image_url from post_images p_i WHERE p_i.post_id = p.id)::text[] as image_urls,
+       u.id AS user_id,
        u.first_name,
        u.last_name,
        u.avatar_url,
@@ -101,6 +102,7 @@ type GetPostsAndPostAuthorsRow struct {
 	LikesCount    int64     `json:"likes_count"`
 	CommentsCount int64     `json:"comments_count"`
 	ImageUrls     []string  `json:"image_urls"`
+	UserID_2      int32     `json:"user_id_2"`
 	FirstName     string    `json:"first_name"`
 	LastName      string    `json:"last_name"`
 	AvatarUrl     string    `json:"avatar_url"`
@@ -126,6 +128,7 @@ func (q *Queries) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPos
 			&i.LikesCount,
 			&i.CommentsCount,
 			pq.Array(&i.ImageUrls),
+			&i.UserID_2,
 			&i.FirstName,
 			&i.LastName,
 			&i.AvatarUrl,
