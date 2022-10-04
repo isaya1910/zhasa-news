@@ -86,7 +86,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	var postsResponse []PostResponse
+	postsResponse := make([]PostResponse, 0)
 	for _, value := range posts {
 		postResponse := PostResponse{
 			Id:            value.ID,

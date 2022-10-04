@@ -55,7 +55,7 @@ func (store *SQLStore) CreatePostTx(ctx context.Context, postArg CreatePostParam
 			return err
 		}
 		createImageParams := CreatePostImageParams{PostID: resultPost.ID, ImageUrl: postImage}
-		if len(createImageParams.ImageUrl) == 0 {
+		if createImageParams.ImageUrl == "" {
 			return nil
 		}
 		_, err = queries.CreatePostImage(ctx, createImageParams)
