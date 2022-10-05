@@ -33,5 +33,5 @@ FROM posts p
          LEFT JOIN comments cm ON cm.post_id = p.id
          LEFT JOIN post_images p_i ON p_i.post_id = p.id
          JOIN users u ON p.user_id = u.id
-ORDER BY p.created_at LIMIT $2
+ORDER BY p.created_at DESC NULLS LAST LIMIT $2
 OFFSET $3;
