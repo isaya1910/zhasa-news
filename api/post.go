@@ -6,6 +6,7 @@ import (
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type createPostRequest struct {
@@ -80,6 +81,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 		Offset: int32(page),
 		UserID: int32(userId),
 	}
+	time.Sleep(500 * time.Millisecond)
 	posts, err = server.store.GetPostsAndPostAuthors(ctx, arg)
 
 	if err != nil {
