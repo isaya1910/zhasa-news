@@ -81,7 +81,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 		Offset: int32(page),
 		UserID: int32(userId),
 	}
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(2000 * time.Millisecond)
 	posts, err = server.store.GetPostsAndPostAuthors(ctx, arg)
 
 	if err != nil {
