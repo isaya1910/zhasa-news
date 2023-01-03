@@ -28,7 +28,7 @@ SELECT p.*,
        u.last_name,
        u.avatar_url,
        u.bio
-FROM (SELECT * FROM posts ORDER BY created_at DESC LIMIT $2 OFFSET $3) p
+FROM (SELECT * FROM posts ORDER BY created_at DESC OFFSET $3 LIMIT $2) p
          LEFT JOIN (SELECT post_id, COUNT(*) AS likes_count FROM likes GROUP BY post_id) lc ON lc.post_id = p.id
          LEFT JOIN (SELECT post_id, COUNT(*) AS comments_count FROM comments GROUP BY post_id) cc ON cc.post_id = p.id
          LEFT JOIN post_images p_i ON p_i.post_id = p.id
