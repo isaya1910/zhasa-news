@@ -67,24 +67,26 @@ func (q *Queries) GetPostById(ctx context.Context, id int32) (Post, error) {
 }
 
 const getPostsAndPostAuthors = `-- name: GetPostsAndPostAuthors :many
-SELECT DISTINCT p.id, p.title, p.body, p.user_id, p.created_at,
-                EXISTS(SELECT user_id, post_id FROM likes l WHERE l.post_id = p.id AND l.user_id = $1) AS is_liked,
-                (SELECT COUNT(*) AS likes_count FROM likes l WHERE l.post_id = p.id),
-                (SELECT COUNT(*) AS comments_count FROM comments cm WHERE cm.post_id = p.id),
-                ARRAY(select p_i.image_url from post_images p_i WHERE p_i.post_id = p.id)::text[] as image_urls, u.id AS user_id,
-                u.first_name,
-                u.last_name,
-                u.avatar_url,
-                u.bio
-FROM (SELECT id, title, body, user_id, created_at from posts ORDER BY created_at DESC LIMIT $1 OFFSET $2) p
-         LEFT JOIN likes l ON l.post_id = p.id
-         LEFT JOIN comments cm ON cm.post_id = p.id
+SELECT p.id, p.title, p.body, p.user_id, p.created_at,
+       EXISTS(SELECT user_id, post_id FROM likes l WHERE l.post_id = p.id AND l.user_id = $1) AS is_liked,
+       lc.likes_count,
+       cc.comments_count,
+       ARRAY(SELECT p_i.image_url FROM post_images p_i WHERE p_i.post_id = p.id)::text[] AS image_urls,
+        u.id AS user_id,
+       u.first_name,
+       u.last_name,
+       u.avatar_url,
+       u.bio
+FROM (SELECT id, title, body, user_id, created_at FROM posts ORDER BY created_at DESC LIMIT $2 OFFSET $3) p
+         LEFT JOIN (SELECT post_id, COUNT(*) AS likes_count FROM likes GROUP BY post_id) lc ON lc.post_id = p.id
+         LEFT JOIN (SELECT post_id, COUNT(*) AS comments_count FROM comments GROUP BY post_id) cc ON cc.post_id = p.id
          LEFT JOIN post_images p_i ON p_i.post_id = p.id
          JOIN users u ON p.user_id = u.id
 `
 
 type GetPostsAndPostAuthorsParams struct {
 	UserID int32 `json:"user_id"`
+	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
@@ -106,7 +108,7 @@ type GetPostsAndPostAuthorsRow struct {
 }
 
 func (q *Queries) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPostsAndPostAuthors, arg.UserID, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getPostsAndPostAuthors, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

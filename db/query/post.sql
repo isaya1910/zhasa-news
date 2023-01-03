@@ -18,17 +18,18 @@ FROM posts
 WHERE id = $1;
 
 -- name: GetPostsAndPostAuthors :many
-SELECT DISTINCT p.*,
-                EXISTS(SELECT * FROM likes l WHERE l.post_id = p.id AND l.user_id = $1) AS is_liked,
-                (SELECT COUNT(*) AS likes_count FROM likes l WHERE l.post_id = p.id),
-                (SELECT COUNT(*) AS comments_count FROM comments cm WHERE cm.post_id = p.id),
-                ARRAY(select p_i.image_url from post_images p_i WHERE p_i.post_id = p.id)::text[] as image_urls, u.id AS user_id,
-                u.first_name,
-                u.last_name,
-                u.avatar_url,
-                u.bio
-FROM (SELECT * from posts ORDER BY created_at DESC LIMIT $1 OFFSET $2) p
-         LEFT JOIN likes l ON l.post_id = p.id
-         LEFT JOIN comments cm ON cm.post_id = p.id
+SELECT p.*,
+       EXISTS(SELECT * FROM likes l WHERE l.post_id = p.id AND l.user_id = $1) AS is_liked,
+       lc.likes_count,
+       cc.comments_count,
+       ARRAY(SELECT p_i.image_url FROM post_images p_i WHERE p_i.post_id = p.id)::text[] AS image_urls,
+        u.id AS user_id,
+       u.first_name,
+       u.last_name,
+       u.avatar_url,
+       u.bio
+FROM (SELECT * FROM posts ORDER BY created_at DESC LIMIT $2 OFFSET $3) p
+         LEFT JOIN (SELECT post_id, COUNT(*) AS likes_count FROM likes GROUP BY post_id) lc ON lc.post_id = p.id
+         LEFT JOIN (SELECT post_id, COUNT(*) AS comments_count FROM comments GROUP BY post_id) cc ON cc.post_id = p.id
          LEFT JOIN post_images p_i ON p_i.post_id = p.id
          JOIN users u ON p.user_id = u.id;
