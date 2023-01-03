@@ -20,8 +20,8 @@ WHERE id = $1;
 -- name: GetPostsAndPostAuthors :many
 SELECT p.*,
        EXISTS(SELECT * FROM likes l WHERE l.post_id = p.id AND l.user_id = $1) AS is_liked,
-       lc.likes_count,
-       cc.comments_count,
+       COALESCE(lc.likes_count, 0) AS likes_count,
+       COALESCE(cc.comments_count, 0) AS comments_count,
        ARRAY(SELECT p_i.image_url FROM post_images p_i WHERE p_i.post_id = p.id)::text[] AS image_urls,
         u.id AS user_id,
        u.first_name,
