@@ -6,6 +6,7 @@ import (
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type createPostRequest struct {
@@ -31,6 +32,7 @@ type PostResponse struct {
 	IsLiked       bool         `json:"is_liked"`
 	ImageUrls     []string     `json:"image_urls"`
 	User          UserResponse `json:"user"`
+	CreatedAt     time.Time    `json:"created_at"`
 }
 
 func (u CreateUserJson) validateUserJson() error {
@@ -97,6 +99,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 			LikesCount:    value.LikesCount,
 			CommentsCount: value.CommentsCount,
 			IsLiked:       value.IsLiked,
+			CreatedAt:     value.CreatedAt,
 			User: UserResponse{
 				FirstName: value.FirstName,
 				LastName:  value.LastName,
