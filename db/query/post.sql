@@ -32,4 +32,4 @@ FROM (SELECT * FROM posts LIMIT $2 OFFSET $3) p
          LEFT JOIN (SELECT post_id, COUNT(*) AS likes_count FROM likes GROUP BY post_id) lc ON lc.post_id = p.id
          LEFT JOIN (SELECT post_id, COUNT(*) AS comments_count FROM comments GROUP BY post_id) cc ON cc.post_id = p.id
          LEFT JOIN post_images p_i ON p_i.post_id = p.id
-         JOIN users u ON p.user_id = u.id ORDER BY p.created_date DESC;
+         JOIN users u ON p.user_id = u.id ORDER BY p.created_at DESC;
