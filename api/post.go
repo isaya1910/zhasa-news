@@ -77,7 +77,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 
 	arg := db.GetPostsAndPostAuthorsParams{
 		Limit:  int32(size),
-		Offset: int32(page),
+		Offset: int32(page * size),
 		UserID: int32(userId),
 	}
 
