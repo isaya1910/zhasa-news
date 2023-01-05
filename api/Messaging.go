@@ -8,23 +8,22 @@ import (
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
 	"google.golang.org/api/option"
 	"log"
-	"os"
 )
 
 func SendPostPush(post db.Post) error {
-
-	logger := log.New(os.Stderr, "my-app", 0)
 
 	opt := option.WithCredentialsFile("serviceAccount.json")
 
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		logger.Println("error initializing app: %v\", err")
+		log.Fatal("ERROR")
 		return fmt.Errorf("error initializing app: %v", err)
 	}
 	fcmClient, err := app.Messaging(context.Background())
 
 	if err != nil {
+		log.Fatal("ERROR")
+
 		return fmt.Errorf("error initializing app: %v", err)
 	}
 	message := &messaging.Message{
@@ -37,9 +36,12 @@ func SendPostPush(post db.Post) error {
 
 	response, err := fcmClient.Send(context.Background(), message)
 	if err != nil {
+		log.Fatal("ERROR")
+
 		fmt.Print(err)
 		return err
 	}
+	log.Fatal("SUCCESS")
 	fmt.Print(response)
 	return err
 }
