@@ -10,10 +10,7 @@ import (
 	"log"
 )
 
-func SendPostPush(post db.Post) error {
-
-	opt := option.WithCredentialsFile("/home/zhasprod/zhasa-news/serviceAccount.json")
-
+func SendPostPush(opt option.ClientOption, post db.Post) error {
 	config := &firebase.Config{ProjectID: "zhasa-7a01b"}
 	app, err := firebase.NewApp(context.Background(), config, opt)
 	if err != nil {

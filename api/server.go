@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
+	"google.golang.org/api/option"
 	"log"
 	"net/http"
 )
@@ -11,11 +12,13 @@ type Server struct {
 	store      db.Store
 	router     *gin.Engine
 	repository UserRepository
+	opt        option.ClientOption
 }
 
 // NewServer creates new http server and setup routing
 func NewServer(store db.Store, repository UserRepository) *Server {
-	server := &Server{store: store, repository: repository}
+	opt := option.WithCredentialsFile("serviceAccount.json")
+	server := &Server{store: store, repository: repository, opt: opt}
 	router := gin.Default()
 	router.Use(getAndSetUser(repository, store))
 
