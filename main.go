@@ -3,9 +3,8 @@ package main
 import (
 	"database/sql"
 	"github.com/isaya1910/zhasa-news/api"
-	"github.com/isaya1910/zhasa-news/util"
-
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
+	"github.com/isaya1910/zhasa-news/util"
 	_ "github.com/lib/pq"
 	"log"
 )
