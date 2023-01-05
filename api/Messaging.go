@@ -16,13 +16,13 @@ func SendPostPush(post db.Post) error {
 
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		log.Fatal("ERROR")
+		log.Fatal("ERROR1")
 		return fmt.Errorf("error initializing app: %v", err)
 	}
 	fcmClient, err := app.Messaging(context.Background())
 
 	if err != nil {
-		log.Fatal("ERROR")
+		log.Fatal("ERROR2")
 
 		return fmt.Errorf("error initializing app: %v", err)
 	}
@@ -36,7 +36,7 @@ func SendPostPush(post db.Post) error {
 
 	response, err := fcmClient.Send(context.Background(), message)
 	if err != nil {
-		log.Fatal("ERROR")
+		log.Fatal("ERROR3")
 
 		fmt.Print(err)
 		return err
