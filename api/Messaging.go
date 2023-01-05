@@ -11,8 +11,8 @@ import (
 )
 
 func SendPostPush(opt option.ClientOption, post db.Post) error {
-	//config := &firebase.Config{ProjectID: "zhasa-7a01b"}
-	app, err := firebase.NewApp(context.Background(), nil, opt)
+	config := &firebase.Config{ProjectID: "zhasa-7a01b"}
+	app, err := firebase.NewApp(context.Background(), config, opt)
 	if err != nil {
 		log.Println(err)
 		return fmt.Errorf("error initializing app: %v", err)
