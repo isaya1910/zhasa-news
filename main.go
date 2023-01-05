@@ -2,15 +2,12 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/isaya1910/zhasa-news/api"
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
 	"github.com/isaya1910/zhasa-news/util"
 	_ "github.com/lib/pq"
 	"google.golang.org/api/option"
 	"log"
-	"os"
-	"path/filepath"
 )
 
 func main() {
@@ -25,19 +22,12 @@ func main() {
 	}
 	store := db.NewStore(conn)
 
-	wd, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	configPath := filepath.Join(wd, "serviceAccount.json")
+	configPath := "/zhasa-news/serviceAccount.json"
 	log.Println(configPath)
 
 	opt := option.WithCredentialsFile(configPath)
 
 	server := api.NewServer(opt, store, api.UserExternalRepository{})
-
-	server.Opt = opt
 
 	err = server.Start(config.ServerAddress)
 

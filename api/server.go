@@ -17,7 +17,7 @@ type Server struct {
 
 // NewServer creates new http server and setup routing
 func NewServer(opt option.ClientOption, store db.Store, repository UserRepository) *Server {
-	server := &Server{store: store, repository: repository}
+	server := &Server{store: store, repository: repository, Opt: opt}
 	router := gin.Default()
 	router.Use(getAndSetUser(repository, store))
 
