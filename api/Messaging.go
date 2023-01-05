@@ -14,13 +14,13 @@ func SendPostPush(opt option.ClientOption, post db.Post) error {
 	config := &firebase.Config{ProjectID: "zhasa-7a01b"}
 	app, err := firebase.NewApp(context.Background(), config, opt)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return fmt.Errorf("error initializing app: %v", err)
 	}
 	fcmClient, err := app.Messaging(context.Background())
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 
 		return fmt.Errorf("error initializing app: %v", err)
 	}
@@ -34,7 +34,7 @@ func SendPostPush(opt option.ClientOption, post db.Post) error {
 
 	response, err := fcmClient.Send(context.Background(), message)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 
 		fmt.Print(err)
 		return err
