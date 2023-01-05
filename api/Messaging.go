@@ -14,7 +14,8 @@ func SendPostPush(post db.Post) error {
 
 	opt := option.WithCredentialsFile("serviceAccount.json")
 
-	app, err := firebase.NewApp(context.Background(), nil, opt)
+	config := &firebase.Config{ProjectID: "zhasa-7a01b"}
+	app, err := firebase.NewApp(context.Background(), config, opt)
 	if err != nil {
 		log.Fatal(err)
 		return fmt.Errorf("error initializing app: %v", err)
