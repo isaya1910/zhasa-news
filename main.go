@@ -21,7 +21,7 @@ func main() {
 		log.Fatal("Cannot connect to db", err)
 	}
 	store := db.NewStore(conn)
-	opt := option.WithCredentialsFile("serviceAccount.json")
+	opt := option.WithCredentialsFile("/app/serviceAccount.json")
 
 	server := api.NewServer(opt, store, api.UserExternalRepository{})
 
