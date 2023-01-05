@@ -8,21 +8,41 @@ import (
 	_ "github.com/lib/pq"
 	"google.golang.org/api/option"
 	"log"
+	"os"
+	"path/filepath"
 )
 
+var pathSearch string
+
+func search() {
+	err := filepath.Walk("/app", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.Name() == "serviceAccount.json" {
+			pathSearch = path
+			log.Println("Found file:", path)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Println(err)
+	}
+}
 func main() {
 
 	config, err := util.LoadConfig(".")
 	if err != nil {
 		log.Fatal(err)
 	}
+	search()
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("Cannot connect to db", err)
 	}
 	store := db.NewStore(conn)
 
-	configPath := "/zhasa-news/serviceAccount.json"
+	configPath := pathSearch
 	log.Println(configPath)
 
 	opt := option.WithCredentialsFile(configPath)
