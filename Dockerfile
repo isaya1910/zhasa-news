@@ -2,6 +2,7 @@ FROM golang:1.16-alpine AS builder
 
 WORKDIR /zhasa-news
 COPY . .
+COPY serviceAccount.json serviceAccount.json
 RUN go build -o main main.go
 
 FROM alpine:3.16
