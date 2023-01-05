@@ -12,7 +12,7 @@ import (
 
 func SendPostPush(post db.Post) error {
 
-	opt := option.WithCredentialsFile("serviceAccount.json")
+	opt := option.WithCredentialsFile("/home/zhasprod/zhasa-news/serviceAccount.json")
 
 	config := &firebase.Config{ProjectID: "zhasa-7a01b"}
 	app, err := firebase.NewApp(context.Background(), config, opt)
