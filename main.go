@@ -2,12 +2,15 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/isaya1910/zhasa-news/api"
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
 	"github.com/isaya1910/zhasa-news/util"
 	_ "github.com/lib/pq"
 	"google.golang.org/api/option"
 	"log"
+	"os"
+	"path/filepath"
 )
 
 func main() {
@@ -21,7 +24,16 @@ func main() {
 		log.Fatal("Cannot connect to db", err)
 	}
 	store := db.NewStore(conn)
-	opt := option.WithCredentialsFile("/app/serviceAccount.json")
+
+	wd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	configPath := filepath.Join(wd, "serviceAccount.json")
+	log.Println(configPath)
+
+	opt := option.WithCredentialsFile(configPath)
 
 	server := api.NewServer(opt, store, api.UserExternalRepository{})
 
