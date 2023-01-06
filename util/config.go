@@ -2,6 +2,7 @@ package util
 
 import (
 	"github.com/spf13/viper"
+	"google.golang.org/api/option"
 	"log"
 )
 
@@ -10,6 +11,10 @@ type Config struct {
 	DBSource          string `mapstructure:"DB_SOURCE"`
 	ServerAddress     string `mapstructure:"SERVER_ADDRESS"`
 	UserServerAddress string `mapstructure:"USER_SERVER_ADDRESS"`
+}
+
+func LoadClientOption() option.ClientOption {
+	return option.WithCredentialsFile("./serviceAccount.json")
 }
 
 func LoadConfig(path string) (config Config, err error) {

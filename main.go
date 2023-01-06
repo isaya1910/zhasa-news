@@ -6,7 +6,6 @@ import (
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
 	"github.com/isaya1910/zhasa-news/util"
 	_ "github.com/lib/pq"
-	"google.golang.org/api/option"
 	"log"
 )
 
@@ -22,13 +21,7 @@ func main() {
 	}
 	store := db.NewStore(conn)
 
-	configPath := "/app/ServiceAccount.json"
-
-	log.Println(configPath)
-
-	opt := option.WithCredentialsFile(configPath)
-
-	server := api.NewServer(opt, store, api.UserExternalRepository{})
+	server := api.NewServer(util.LoadClientOption(), store, api.UserExternalRepository{})
 
 	err = server.Start(config.ServerAddress)
 
