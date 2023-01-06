@@ -2,7 +2,7 @@ FROM golang:1.16-alpine AS builder
 
 WORKDIR /zhasa-news
 COPY . .
-ENV GOOGLE_APPLICATION_CREDENTIALS "/zhasa-news/serviceAccount.json"
+ENV GOOGLE_APPLICATION_CREDENTIALS "/app/serviceAccount.json"
 RUN go build -o main main.go
 
 FROM alpine:3.16
