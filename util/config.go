@@ -14,7 +14,7 @@ type Config struct {
 }
 
 func LoadClientOption() option.ClientOption {
-	return option.WithCredentialsFile("./serviceAccount.json")
+	return option.WithCredentialsFile("/app/serviceAccount.json")
 }
 
 func LoadConfig(path string) (config Config, err error) {
