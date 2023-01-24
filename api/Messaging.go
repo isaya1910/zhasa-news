@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"fmt"
@@ -23,13 +24,31 @@ func SendPostPush(opt option.ClientOption, post db.Post) error {
 
 		return fmt.Errorf("error initializing app: %v", err)
 	}
+
 	message := &messaging.Message{
-		Data: map[string]string{
-			"title": post.Title,
-			"body":  post.Body,
+		Notification: &messaging.Notification{
+			Title: post.Title,
+			Body:  post.Body,
 		},
 		Topic: "news",
+		APNS: &messaging.APNSConfig{
+			Payload: &messaging.APNSPayload{
+				Aps: &messaging.Aps{
+					ContentAvailable: true,
+					Alert: &messaging.ApsAlert{
+						Title: post.Title,
+						Body:  post.Body,
+					},
+					CustomData: map[string]interface{}{
+						"deeplink": "news",
+					},
+					Sound: "default",
+				},
+			},
+		},
 	}
+	s, _ := json.MarshalIndent(message, "", "\t")
+	fmt.Printf("%+v\n", string(s))
 
 	response, err := fcmClient.Send(context.Background(), message)
 	if err != nil {
