@@ -161,6 +161,8 @@ func (server *Server) createPost(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	SendPostPush(server.Opt, post)
+
+	go server.pushSender.SendPostPush(post)
+
 	ctx.JSON(http.StatusOK, post)
 }

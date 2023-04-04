@@ -12,12 +12,13 @@ type Server struct {
 	store      db.Store
 	router     *gin.Engine
 	repository UserRepository
-	Opt        option.ClientOption
+	pushSender PushMessageSender
 }
 
 // NewServer creates new http server and setup routing
 func NewServer(opt option.ClientOption, store db.Store, repository UserRepository) *Server {
-	server := &Server{store: store, repository: repository, Opt: opt}
+	pushSender := FirebasePushMessageSender{opt: opt}
+	server := &Server{store: store, repository: repository, pushSender: pushSender}
 	router := gin.Default()
 	router.Use(getAndSetUser(repository, store))
 

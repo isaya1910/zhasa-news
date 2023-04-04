@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	db "github.com/isaya1910/zhasa-news/db/sqlc"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -106,5 +107,20 @@ func (server *Server) createComment(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+	go func() {
+		post, err := server.store.GetPostById(ctx, createCommentRequest.PostId)
+		if err != nil {
+			return
+		}
+		user, err := server.store.GetUser(ctx, int32(userId))
+		if err != nil {
+			return
+		}
+		err = server.pushSender.SendCommentOnPostPush(post, comment, user)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+
 	ctx.JSON(http.StatusOK, comment)
 }
